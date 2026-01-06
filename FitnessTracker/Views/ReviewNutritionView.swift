@@ -1,19 +1,19 @@
 //
-//  ReviewWorkoutsView.swift
+//  ReviewNutritionView.swift
 //  FitnessTracker
 //
-//  Calendar view for reviewing workout history with floating chat
+//  Calendar view for reviewing nutrition history with floating chat
 //
 
 import SwiftUI
 
-struct ReviewWorkoutsView: View {
-    @StateObject private var viewModel = ReviewWorkoutsViewModel()
+struct ReviewNutritionView: View {
+    @StateObject private var viewModel = ReviewNutritionViewModel()
     @StateObject private var calendarViewModel = CalendarViewModel()
     @Environment(\.dismiss) private var dismiss
 
     @State private var showChat: Bool = false
-    @State private var workoutToEdit: WorkoutSession?
+    @State private var mealToEdit: MealSession?
     @State private var refreshTrigger: Bool = false
 
     var body: some View {
@@ -21,23 +21,23 @@ struct ReviewWorkoutsView: View {
             ZStack {
                 VStack(spacing: 0) {
                     // Calendar at top
-                    CalendarView(viewModel: calendarViewModel, accentColor: .blue)
+                    CalendarView(viewModel: calendarViewModel, accentColor: .green)
                         .background(Color(.systemBackground))
 
                     Divider()
 
-                    // Workout list below
+                    // Meal list below
                     ScrollView {
                         if let selectedDate = calendarViewModel.selectedDate {
-                            let workouts = viewModel.fetchWorkouts(for: selectedDate)
-                            WorkoutDayListView(
-                                workouts: workouts,
+                            let meals = viewModel.fetchMeals(for: selectedDate)
+                            MealDayListView(
+                                meals: meals,
                                 selectedDate: selectedDate,
-                                onEdit: { workout in
-                                    workoutToEdit = workout
+                                onEdit: { meal in
+                                    mealToEdit = meal
                                 },
-                                onDelete: { workout in
-                                    if viewModel.deleteWorkout(workout) {
+                                onDelete: { meal in
+                                    if viewModel.deleteMeal(meal) {
                                         refreshTrigger.toggle()
                                         updateCalendarHighlights()
                                     }
@@ -51,7 +51,7 @@ struct ReviewWorkoutsView: View {
                                     .font(.system(size: 50))
                                     .foregroundColor(.secondary)
 
-                                Text("Select a date to view workouts")
+                                Text("Select a date to view meals")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
@@ -66,7 +66,7 @@ struct ReviewWorkoutsView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        FloatingChatButton(accentColor: .blue) {
+                        FloatingChatButton(accentColor: .green) {
                             showChat = true
                         }
                         .padding(.trailing, 20)
@@ -74,7 +74,7 @@ struct ReviewWorkoutsView: View {
                     }
                 }
             }
-            .navigationTitle("Review Workouts")
+            .navigationTitle("Review Nutrition")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -93,11 +93,11 @@ struct ReviewWorkoutsView: View {
                 }
             }
             .sheet(isPresented: $showChat) {
-                ReviewWorkoutsChatView(viewModel: viewModel)
+                ReviewNutritionChatView(viewModel: viewModel)
             }
-            .sheet(item: $workoutToEdit) { workout in
-                WorkoutConfirmationView(workout: workout) {
-                    workoutToEdit = nil
+            .sheet(item: $mealToEdit) { meal in
+                MealConfirmationView(meal: meal) {
+                    mealToEdit = nil
                     refreshTrigger.toggle()
                     updateCalendarHighlights()
                 }
@@ -115,15 +115,15 @@ struct ReviewWorkoutsView: View {
     }
 
     private func updateCalendarHighlights() {
-        let dates = viewModel.getDatesWithWorkouts(in: calendarViewModel.currentMonth)
+        let dates = viewModel.getDatesWithMeals(in: calendarViewModel.currentMonth)
         calendarViewModel.updateDatesWithData(dates)
     }
 }
 
-// MARK: - Review Workouts Chat View
+// MARK: - Review Nutrition Chat View
 
-struct ReviewWorkoutsChatView: View {
-    @ObservedObject var viewModel: ReviewWorkoutsViewModel
+struct ReviewNutritionChatView: View {
+    @ObservedObject var viewModel: ReviewNutritionViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     @State private var showVoiceInput: Bool = false
@@ -191,7 +191,7 @@ struct ReviewWorkoutsChatView: View {
                     isProcessing: viewModel.isProcessing
                 )
             }
-            .navigationTitle("Ask About Workouts")
+            .navigationTitle("Ask About Nutrition")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

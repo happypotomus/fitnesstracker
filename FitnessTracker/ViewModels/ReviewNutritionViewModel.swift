@@ -1,15 +1,15 @@
 //
-//  ReviewWorkoutsViewModel.swift
+//  ReviewNutritionViewModel.swift
 //  FitnessTracker
 //
-//  Manages chat state for reviewing workout history with AI
+//  Manages chat state for reviewing nutrition history with AI
 //
 
 import Foundation
 import Combine
 
 @MainActor
-class ReviewWorkoutsViewModel: ObservableObject {
+class ReviewNutritionViewModel: ObservableObject {
     @Published var messages: [ChatMessage] = []
     @Published var inputText: String = ""
     @Published var isProcessing: Bool = false
@@ -18,23 +18,21 @@ class ReviewWorkoutsViewModel: ObservableObject {
 
     private var conversationContext = ConversationContext()
     private let openAIService = OpenAIService()
-    private let repository = WorkoutRepository()
+    private let repository = NutritionRepository()
     private let calendar = Calendar.current
 
     // Example questions that appear as chips
     let exampleQuestions: [String] = [
-        "What exercises did I do most last month?",
-        "Show me my bench press progress",
-        "How many workouts this week?",
-        "What was my heaviest squat?"
+        "How much protein did I eat yesterday?",
+        "What was my average calorie intake this week?",
+        "Show me my breakfast meals",
+        "Am I eating enough protein?"
     ]
-
-    // MARK: - Date Filtering
 
     init() {
         // Start with a welcome message
         let welcomeMessage = ChatMessage(
-            content: "Hi! Ask me anything about your workout history. You can tap an example question above or type/speak your own question.",
+            content: "Hi! Ask me anything about your nutrition history. You can tap an example question above or type/speak your own question.",
             isUser: false
         )
         messages.append(welcomeMessage)
@@ -64,12 +62,12 @@ class ReviewWorkoutsViewModel: ObservableObject {
         showError = false
 
         do {
-            // Fetch all workouts for context
-            let workouts = repository.fetchAllWorkouts()
+            // Fetch all meals for context
+            let meals = repository.fetchAllMeals()
 
-            // Check if user has any workout data
-            guard !workouts.isEmpty else {
-                let errorResponse = "I don't see any workout data yet. Start logging workouts to ask questions about your progress!"
+            // Check if user has any meal data
+            guard !meals.isEmpty else {
+                let errorResponse = "I don't see any meal data yet. Start logging meals to ask questions about your nutrition!"
                 let aiMessage = ChatMessage(content: errorResponse, isUser: false)
                 messages.append(aiMessage)
                 conversationContext.addMessage(aiMessage)
@@ -78,9 +76,9 @@ class ReviewWorkoutsViewModel: ObservableObject {
             }
 
             // Query OpenAI with conversation context
-            let response = try await openAIService.queryWorkoutHistoryWithContext(
+            let response = try await openAIService.queryNutritionHistoryWithContext(
                 trimmedQuestion,
-                workouts: workouts,
+                meals: meals,
                 conversationContext: conversationContext
             )
 
@@ -101,34 +99,25 @@ class ReviewWorkoutsViewModel: ObservableObject {
     /// Start a new conversation (clear history)
     func startNewConversation() {
         messages.removeAll()
-        conversationContext.clear()
 
-        // Add welcome message
         let welcomeMessage = ChatMessage(
-            content: "Hi! Ask me anything about your workout history. You can tap an example question above or type/speak your own question.",
+            content: "Starting fresh! Ask me anything about your nutrition history.",
             isUser: false
         )
         messages.append(welcomeMessage)
 
-        inputText = ""
-        errorMessage = ""
-        showError = false
-    }
-
-    /// Handle voice transcription completion
-    func handleVoiceInput(_ transcription: String) {
-        inputText = transcription
+        conversationContext.clear()
     }
 
     // MARK: - Private Methods
 
     private func handleError(_ error: OpenAIError) {
-        errorMessage = error.errorDescription ?? "An unknown error occurred"
+        errorMessage = error.errorDescription ?? "An error occurred"
         showError = true
 
-        // Add error message to chat
+        // Also add error message to chat
         let errorChatMessage = ChatMessage(
-            content: "Sorry, I encountered an error: \(errorMessage). Please try again.",
+            content: "Sorry, I encountered an error: \(errorMessage)",
             isUser: false
         )
         messages.append(errorChatMessage)
@@ -136,26 +125,26 @@ class ReviewWorkoutsViewModel: ObservableObject {
 
     // MARK: - Date Filtering for Calendar
 
-    /// Fetch workouts for a specific date
-    func fetchWorkouts(for date: Date) -> [WorkoutSession] {
-        let allWorkouts = repository.fetchAllWorkouts()
-        return allWorkouts.filter { workout in
-            calendar.isDate(workout.date, inSameDayAs: date)
+    /// Fetch meals for a specific date
+    func fetchMeals(for date: Date) -> [MealSession] {
+        let allMeals = repository.fetchAllMeals()
+        return allMeals.filter { meal in
+            calendar.isDate(meal.date, inSameDayAs: date)
         }
     }
 
-    /// Get all dates that have workouts in a specific month
-    func getDatesWithWorkouts(in month: Date) -> [Date] {
+    /// Get all dates that have meals in a specific month
+    func getDatesWithMeals(in month: Date) -> [Date] {
         guard let range = calendar.dateInterval(of: .month, for: month) else {
             return []
         }
 
-        let workouts = repository.fetchWorkouts(from: range.start, to: range.end)
-        return workouts.map { calendar.startOfDay(for: $0.date) }
+        let meals = repository.fetchMeals(from: range.start, to: range.end)
+        return meals.map { calendar.startOfDay(for: $0.date) }
     }
 
-    /// Delete a workout
-    func deleteWorkout(_ workout: WorkoutSession) -> Bool {
-        return repository.deleteWorkout(id: workout.id)
+    /// Delete a meal
+    func deleteMeal(_ meal: MealSession) -> Bool {
+        return repository.deleteMeal(id: meal.id)
     }
 }

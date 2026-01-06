@@ -125,6 +125,83 @@ class OpenAIService {
         return try await makeAPIRequest(apiKey: apiKey, body: requestBody)
     }
 
+    // MARK: - Nutrition Parsing
+
+    /// Parses natural language meal description into structured MealSession
+    func parseMealText(_ text: String, previousMeal: MealSession? = nil, availableTemplates: [MealSession] = []) async throws -> MealSession {
+        guard let apiKey = apiKey else {
+            throw OpenAIError.noAPIKey
+        }
+
+        let prompt = PromptTemplates.mealParsingPrompt(input: text, previousMeal: previousMeal, availableTemplates: availableTemplates)
+
+        let requestBody: [String: Any] = [
+            "model": model,
+            "messages": [
+                ["role": "system", "content": "You are a nutrition data parser. Respond only with valid JSON."],
+                ["role": "user", "content": prompt]
+            ],
+            "response_format": ["type": "json_object"],
+            "temperature": 0.3 // Lower temperature for more consistent parsing
+        ]
+
+        let responseText = try await makeAPIRequest(apiKey: apiKey, body: requestBody)
+
+        // Parse the JSON response into MealSession
+        return try parseMealJSON(responseText)
+    }
+
+    // MARK: - Nutrition History Query
+
+    /// Queries meal history with natural language question
+    func queryNutritionHistory(_ question: String, context: [MealSession]) async throws -> String {
+        guard let apiKey = apiKey else {
+            throw OpenAIError.noAPIKey
+        }
+
+        let prompt = PromptTemplates.nutritionQueryPrompt(question: question, meals: context)
+
+        let requestBody: [String: Any] = [
+            "model": model,
+            "messages": [
+                ["role": "system", "content": "You are a helpful nutrition data analyst."],
+                ["role": "user", "content": prompt]
+            ],
+            "temperature": 0.7 // Higher temperature for more natural conversation
+        ]
+
+        return try await makeAPIRequest(apiKey: apiKey, body: requestBody)
+    }
+
+    /// Queries meal history with conversation context for follow-up questions
+    func queryNutritionHistoryWithContext(
+        _ question: String,
+        meals: [MealSession],
+        conversationContext: ConversationContext
+    ) async throws -> String {
+        guard let apiKey = apiKey else {
+            throw OpenAIError.noAPIKey
+        }
+
+        let prompt = PromptTemplates.nutritionQueryPromptWithContext(
+            question: question,
+            meals: meals,
+            context: conversationContext
+        )
+
+        let requestBody: [String: Any] = [
+            "model": model,
+            "messages": [
+                ["role": "system", "content": "You are a helpful nutrition data analyst."],
+                ["role": "user", "content": prompt]
+            ],
+            "temperature": 0.7,
+            "max_tokens": 500 // Limit response length for chat UI
+        ]
+
+        return try await makeAPIRequest(apiKey: apiKey, body: requestBody)
+    }
+
     // MARK: - Private Methods
 
     private func makeAPIRequest(apiKey: String, body: [String: Any]) async throws -> String {
@@ -216,6 +293,55 @@ class OpenAIService {
             return WorkoutSession(
                 date: Date(),
                 exercises: exercises
+            )
+        } catch {
+            print("❌ JSON parsing error: \(error)")
+            print("📄 JSON string: \(jsonString)")
+            throw OpenAIError.jsonParsingError(error)
+        }
+    }
+
+    private func parseMealJSON(_ jsonString: String) throws -> MealSession {
+        guard let data = jsonString.data(using: .utf8) else {
+            throw OpenAIError.jsonParsingError(NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not convert string to data"]))
+        }
+
+        struct MealResponse: Codable {
+            let mealType: String?
+            let foodItems: [FoodItemResponse]
+        }
+
+        struct FoodItemResponse: Codable {
+            let name: String
+            let portionSize: String?
+            let calories: Double?
+            let protein: Double?
+            let carbs: Double?
+            let fat: Double?
+            let notes: String?
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            let response = try decoder.decode(MealResponse.self, from: data)
+
+            let foodItems = response.foodItems.enumerated().map { index, food in
+                MealFood(
+                    name: food.name,
+                    portionSize: food.portionSize,
+                    calories: food.calories,
+                    protein: food.protein,
+                    carbs: food.carbs,
+                    fat: food.fat,
+                    notes: food.notes,
+                    order: index
+                )
+            }
+
+            return MealSession(
+                date: Date(),
+                foodItems: foodItems,
+                mealType: response.mealType
             )
         } catch {
             print("❌ JSON parsing error: \(error)")

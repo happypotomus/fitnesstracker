@@ -39,6 +39,18 @@
 		5A4CF97C2F0C8DE70023FB45 /* ExampleQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9772F0C8DE70023FB45 /* ExampleQuestionsView.swift */; };
 		5A4CF97D2F0C8DE70023FB45 /* VoiceInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9792F0C8DE70023FB45 /* VoiceInputSheet.swift */; };
 		5A4CF97E2F0C8DE70023FB45 /* ChatInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9762F0C8DE70023FB45 /* ChatInputView.swift */; };
+		5A4CF9832F0CA1BE0023FB45 /* Meal+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9812F0CA1BE0023FB45 /* Meal+Extensions.swift */; };
+		5A4CF9842F0CA1BE0023FB45 /* MealModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9822F0CA1BE0023FB45 /* MealModel.swift */; };
+		5A4CF9862F0CA1CD0023FB45 /* NutritionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9852F0CA1CD0023FB45 /* NutritionRepository.swift */; };
+		5A4CF98B2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF98A2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift */; };
+		5A4CF98C2F0CA1E10023FB45 /* MealConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9882F0CA1E10023FB45 /* MealConfirmationViewModel.swift */; };
+		5A4CF98D2F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9892F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift */; };
+		5A4CF98E2F0CA1E10023FB45 /* LogMealViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9872F0CA1E10023FB45 /* LogMealViewModel.swift */; };
+		5A4CF9942F0CA1F80023FB45 /* NutritionTemplateEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9912F0CA1F80023FB45 /* NutritionTemplateEditView.swift */; };
+		5A4CF9952F0CA1F80023FB45 /* NutritionTemplatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9922F0CA1F80023FB45 /* NutritionTemplatePickerView.swift */; };
+		5A4CF9962F0CA1F80023FB45 /* LogMealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF98F2F0CA1F80023FB45 /* LogMealView.swift */; };
+		5A4CF9972F0CA1F80023FB45 /* ReviewNutritionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */; };
+		5A4CF9982F0CA1F80023FB45 /* MealConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9902F0CA1F80023FB45 /* MealConfirmationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -75,6 +87,18 @@
 		5A4CF9772F0C8DE70023FB45 /* ExampleQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleQuestionsView.swift; path = Components/ExampleQuestionsView.swift; sourceTree = "<group>"; };
 		5A4CF9782F0C8DE70023FB45 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TypingIndicatorView.swift; path = Components/TypingIndicatorView.swift; sourceTree = "<group>"; };
 		5A4CF9792F0C8DE70023FB45 /* VoiceInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoiceInputSheet.swift; path = Components/VoiceInputSheet.swift; sourceTree = "<group>"; };
+		5A4CF9812F0CA1BE0023FB45 /* Meal+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Meal+Extensions.swift"; sourceTree = "<group>"; };
+		5A4CF9822F0CA1BE0023FB45 /* MealModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealModel.swift; sourceTree = "<group>"; };
+		5A4CF9852F0CA1CD0023FB45 /* NutritionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionRepository.swift; sourceTree = "<group>"; };
+		5A4CF9872F0CA1E10023FB45 /* LogMealViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealViewModel.swift; sourceTree = "<group>"; };
+		5A4CF9882F0CA1E10023FB45 /* MealConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealConfirmationViewModel.swift; sourceTree = "<group>"; };
+		5A4CF9892F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionTemplateEditViewModel.swift; sourceTree = "<group>"; };
+		5A4CF98A2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewNutritionViewModel.swift; sourceTree = "<group>"; };
+		5A4CF98F2F0CA1F80023FB45 /* LogMealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealView.swift; sourceTree = "<group>"; };
+		5A4CF9902F0CA1F80023FB45 /* MealConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealConfirmationView.swift; sourceTree = "<group>"; };
+		5A4CF9912F0CA1F80023FB45 /* NutritionTemplateEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionTemplateEditView.swift; sourceTree = "<group>"; };
+		5A4CF9922F0CA1F80023FB45 /* NutritionTemplatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionTemplatePickerView.swift; sourceTree = "<group>"; };
+		5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewNutritionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +147,8 @@
 		5A4CF93F2F0B60B80023FB45 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF9812F0CA1BE0023FB45 /* Meal+Extensions.swift */,
+				5A4CF9822F0CA1BE0023FB45 /* MealModel.swift */,
 				5A4CF96D2F0C8D670023FB45 /* ChatMessage.swift */,
 				5A4CF96E2F0C8D670023FB45 /* ConversationContext.swift */,
 				5A4CF94B2F0B6AFF0023FB45 /* WorkoutModel.swift */,
@@ -133,6 +159,11 @@
 		5A4CF9402F0B61830023FB45 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF98F2F0CA1F80023FB45 /* LogMealView.swift */,
+				5A4CF9902F0CA1F80023FB45 /* MealConfirmationView.swift */,
+				5A4CF9912F0CA1F80023FB45 /* NutritionTemplateEditView.swift */,
+				5A4CF9922F0CA1F80023FB45 /* NutritionTemplatePickerView.swift */,
+				5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */,
 				5A4CF9732F0C8DC60023FB45 /* ReviewWorkoutsView.swift */,
 				5A4CF9392F0B60B60023FB45 /* ContentView.swift */,
 				5A4CF9752F0C8DE70023FB45 /* ChatBubbleView.swift */,
@@ -154,6 +185,10 @@
 		5A4CF9412F0B61890023FB45 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF9872F0CA1E10023FB45 /* LogMealViewModel.swift */,
+				5A4CF9882F0CA1E10023FB45 /* MealConfirmationViewModel.swift */,
+				5A4CF9892F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift */,
+				5A4CF98A2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift */,
 				5A4CF9712F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift */,
 				5A4CF9612F0C71F20023FB45 /* LogWorkoutViewModel.swift */,
 				5A4CF9692F0C87700023FB45 /* TemplateEditViewModel.swift */,
@@ -165,6 +200,7 @@
 		5A4CF9422F0B61960023FB45 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF9852F0CA1CD0023FB45 /* NutritionRepository.swift */,
 				5A4CF9492F0B67AB0023FB45 /* PersistenceController.swift */,
 				5A4CF95B2F0B718D0023FB45 /* SpeechRecognizer.swift */,
 				5A4CF9572F0B6F220023FB45 /* OpenAIService.swift */,
@@ -259,12 +295,19 @@
 				5A4CF94C2F0B6AFF0023FB45 /* WorkoutModel.swift in Sources */,
 				5A4CF9622F0C71F20023FB45 /* LogWorkoutViewModel.swift in Sources */,
 				5A4CF9482F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld in Sources */,
+				5A4CF9832F0CA1BE0023FB45 /* Meal+Extensions.swift in Sources */,
+				5A4CF9842F0CA1BE0023FB45 /* MealModel.swift in Sources */,
 				5A4CF9522F0B6CBC0023FB45 /* RootView.swift in Sources */,
 				5A4CF9722F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift in Sources */,
 				5A4CF95A2F0B6F3C0023FB45 /* PromptTemplates.swift in Sources */,
 				5A4CF9532F0B6CBC0023FB45 /* HomeView.swift in Sources */,
 				5A4CF9742F0C8DC60023FB45 /* ReviewWorkoutsView.swift in Sources */,
 				5A4CF9642F0C78950023FB45 /* WorkoutConfirmationViewModel.swift in Sources */,
+				5A4CF9862F0CA1CD0023FB45 /* NutritionRepository.swift in Sources */,
+				5A4CF98B2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift in Sources */,
+				5A4CF98C2F0CA1E10023FB45 /* MealConfirmationViewModel.swift in Sources */,
+				5A4CF98D2F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift in Sources */,
+				5A4CF98E2F0CA1E10023FB45 /* LogMealViewModel.swift in Sources */,
 				5A4CF9542F0B6CBC0023FB45 /* APIKeyInputView.swift in Sources */,
 				5A4CF9602F0C70720023FB45 /* LogWorkoutView.swift in Sources */,
 				5A4CF95C2F0B718D0023FB45 /* SpeechRecognizer.swift in Sources */,
@@ -272,6 +315,11 @@
 				5A4CF9562F0B6CC80023FB45 /* KeychainManager.swift in Sources */,
 				5A4CF9682F0C82D50023FB45 /* TemplatePickerView.swift in Sources */,
 				5A4CF9662F0C78AA0023FB45 /* WorkoutConfirmationView.swift in Sources */,
+				5A4CF9942F0CA1F80023FB45 /* NutritionTemplateEditView.swift in Sources */,
+				5A4CF9952F0CA1F80023FB45 /* NutritionTemplatePickerView.swift in Sources */,
+				5A4CF9962F0CA1F80023FB45 /* LogMealView.swift in Sources */,
+				5A4CF9972F0CA1F80023FB45 /* ReviewNutritionView.swift in Sources */,
+				5A4CF9982F0CA1F80023FB45 /* MealConfirmationView.swift in Sources */,
 				5A4CF93C2F0B60B60023FB45 /* ContentView.swift in Sources */,
 				5A4CF97A2F0C8DE70023FB45 /* TypingIndicatorView.swift in Sources */,
 				5A4CF97B2F0C8DE70023FB45 /* ChatBubbleView.swift in Sources */,
