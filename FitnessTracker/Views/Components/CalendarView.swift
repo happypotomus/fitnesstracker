@@ -99,30 +99,27 @@ struct DateCell: View {
     var body: some View {
         Button(action: onTap) {
             ZStack {
-                // Selected background
-                if isSelected {
+                // Background circle
+                if hasData {
+                    // Green circle for dates with data
+                    Circle()
+                        .fill(Color.green)
+                } else if isSelected {
+                    // Accent color for selected dates without data
                     Circle()
                         .fill(accentColor.opacity(0.2))
                 }
 
-                VStack(spacing: 2) {
-                    Text("\(dayNumber)")
-                        .font(.subheadline)
-                        .fontWeight(isToday ? .bold : .regular)
-                        .foregroundColor(textColor)
-
-                    // Data indicator (green dot)
-                    if hasData {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 4, height: 4)
-                    } else {
-                        // Placeholder to maintain spacing
-                        Circle()
-                            .fill(Color.clear)
-                            .frame(width: 4, height: 4)
-                    }
+                // Selected ring overlay
+                if isSelected && hasData {
+                    Circle()
+                        .strokeBorder(accentColor, lineWidth: 2)
                 }
+
+                Text("\(dayNumber)")
+                    .font(.subheadline)
+                    .fontWeight(isToday ? .bold : .regular)
+                    .foregroundColor(textColor)
             }
             .frame(height: 44)
         }
@@ -132,6 +129,9 @@ struct DateCell: View {
     private var textColor: Color {
         if !isInCurrentMonth {
             return .secondary.opacity(0.5)
+        } else if hasData {
+            // White text on green background
+            return .white
         } else if isToday {
             return accentColor
         } else {

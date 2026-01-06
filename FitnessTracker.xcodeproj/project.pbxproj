@@ -51,6 +51,11 @@
 		5A4CF9962F0CA1F80023FB45 /* LogMealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF98F2F0CA1F80023FB45 /* LogMealView.swift */; };
 		5A4CF9972F0CA1F80023FB45 /* ReviewNutritionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */; };
 		5A4CF9982F0CA1F80023FB45 /* MealConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9902F0CA1F80023FB45 /* MealConfirmationView.swift */; };
+		5A4CF99A2F0CA6790023FB45 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9992F0CA6790023FB45 /* CalendarViewModel.swift */; };
+		5A4CF99D2F0CA6B30023FB45 /* WorkoutDayListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF99C2F0CA6B30023FB45 /* WorkoutDayListView.swift */; };
+		5A4CF99E2F0CA6B30023FB45 /* MealDayListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF99B2F0CA6B30023FB45 /* MealDayListView.swift */; };
+		5A4CF9A02F0CA6E80023FB45 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF99F2F0CA6E80023FB45 /* CalendarView.swift */; };
+		5A4CF9A22F0CA6FF0023FB45 /* FloatingChatButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9A12F0CA6FF0023FB45 /* FloatingChatButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,7 +75,7 @@
 		5A4CF9572F0B6F220023FB45 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		5A4CF9592F0B6F3C0023FB45 /* PromptTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplates.swift; sourceTree = "<group>"; };
 		5A4CF95B2F0B718D0023FB45 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
-		5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoiceRecordButton.swift; path = Views/Components/VoiceRecordButton.swift; sourceTree = "<group>"; };
+		5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoiceRecordButton.swift; path = Components/VoiceRecordButton.swift; sourceTree = "<group>"; };
 		5A4CF95F2F0C70720023FB45 /* LogWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWorkoutView.swift; sourceTree = "<group>"; };
 		5A4CF9612F0C71F20023FB45 /* LogWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWorkoutViewModel.swift; sourceTree = "<group>"; };
 		5A4CF9632F0C78950023FB45 /* WorkoutConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutConfirmationViewModel.swift; sourceTree = "<group>"; };
@@ -99,6 +104,11 @@
 		5A4CF9912F0CA1F80023FB45 /* NutritionTemplateEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionTemplateEditView.swift; sourceTree = "<group>"; };
 		5A4CF9922F0CA1F80023FB45 /* NutritionTemplatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionTemplatePickerView.swift; sourceTree = "<group>"; };
 		5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewNutritionView.swift; sourceTree = "<group>"; };
+		5A4CF9992F0CA6790023FB45 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		5A4CF99B2F0CA6B30023FB45 /* MealDayListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDayListView.swift; sourceTree = "<group>"; };
+		5A4CF99C2F0CA6B30023FB45 /* WorkoutDayListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDayListView.swift; sourceTree = "<group>"; };
+		5A4CF99F2F0CA6E80023FB45 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarView.swift; path = Components/CalendarView.swift; sourceTree = "<group>"; };
+		5A4CF9A12F0CA6FF0023FB45 /* FloatingChatButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FloatingChatButton.swift; path = Components/FloatingChatButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,7 +141,6 @@
 		5A4CF93B2F0B60B60023FB45 /* FitnessTracker */ = {
 			isa = PBXGroup;
 			children = (
-				5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */,
 				5A4CF9442F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld */,
 				5A4CF9432F0B619E0023FB45 /* Utilities */,
 				5A4CF9422F0B61960023FB45 /* Services */,
@@ -159,9 +168,14 @@
 		5A4CF9402F0B61830023FB45 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF9A12F0CA6FF0023FB45 /* FloatingChatButton.swift */,
+				5A4CF99F2F0CA6E80023FB45 /* CalendarView.swift */,
+				5A4CF99B2F0CA6B30023FB45 /* MealDayListView.swift */,
+				5A4CF99C2F0CA6B30023FB45 /* WorkoutDayListView.swift */,
 				5A4CF98F2F0CA1F80023FB45 /* LogMealView.swift */,
 				5A4CF9902F0CA1F80023FB45 /* MealConfirmationView.swift */,
 				5A4CF9912F0CA1F80023FB45 /* NutritionTemplateEditView.swift */,
+				5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */,
 				5A4CF9922F0CA1F80023FB45 /* NutritionTemplatePickerView.swift */,
 				5A4CF9932F0CA1F80023FB45 /* ReviewNutritionView.swift */,
 				5A4CF9732F0C8DC60023FB45 /* ReviewWorkoutsView.swift */,
@@ -185,6 +199,7 @@
 		5A4CF9412F0B61890023FB45 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				5A4CF9992F0CA6790023FB45 /* CalendarViewModel.swift */,
 				5A4CF9872F0CA1E10023FB45 /* LogMealViewModel.swift */,
 				5A4CF9882F0CA1E10023FB45 /* MealConfirmationViewModel.swift */,
 				5A4CF9892F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift */,
@@ -295,7 +310,10 @@
 				5A4CF94C2F0B6AFF0023FB45 /* WorkoutModel.swift in Sources */,
 				5A4CF9622F0C71F20023FB45 /* LogWorkoutViewModel.swift in Sources */,
 				5A4CF9482F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld in Sources */,
+				5A4CF9A02F0CA6E80023FB45 /* CalendarView.swift in Sources */,
 				5A4CF9832F0CA1BE0023FB45 /* Meal+Extensions.swift in Sources */,
+				5A4CF99D2F0CA6B30023FB45 /* WorkoutDayListView.swift in Sources */,
+				5A4CF99E2F0CA6B30023FB45 /* MealDayListView.swift in Sources */,
 				5A4CF9842F0CA1BE0023FB45 /* MealModel.swift in Sources */,
 				5A4CF9522F0B6CBC0023FB45 /* RootView.swift in Sources */,
 				5A4CF9722F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift in Sources */,
@@ -307,10 +325,12 @@
 				5A4CF98B2F0CA1E10023FB45 /* ReviewNutritionViewModel.swift in Sources */,
 				5A4CF98C2F0CA1E10023FB45 /* MealConfirmationViewModel.swift in Sources */,
 				5A4CF98D2F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift in Sources */,
+				5A4CF9A22F0CA6FF0023FB45 /* FloatingChatButton.swift in Sources */,
 				5A4CF98E2F0CA1E10023FB45 /* LogMealViewModel.swift in Sources */,
 				5A4CF9542F0B6CBC0023FB45 /* APIKeyInputView.swift in Sources */,
 				5A4CF9602F0C70720023FB45 /* LogWorkoutView.swift in Sources */,
 				5A4CF95C2F0B718D0023FB45 /* SpeechRecognizer.swift in Sources */,
+				5A4CF99A2F0CA6790023FB45 /* CalendarViewModel.swift in Sources */,
 				5A4CF96A2F0C87700023FB45 /* TemplateEditViewModel.swift in Sources */,
 				5A4CF9562F0B6CC80023FB45 /* KeychainManager.swift in Sources */,
 				5A4CF9682F0C82D50023FB45 /* TemplatePickerView.swift in Sources */,
