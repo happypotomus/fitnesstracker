@@ -6,17 +6,76 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5A4CF93C2F0B60B60023FB45 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9392F0B60B60023FB45 /* ContentView.swift */; };
+		5A4CF93D2F0B60B60023FB45 /* FitnessTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF93A2F0B60B60023FB45 /* FitnessTrackerApp.swift */; };
+		5A4CF93E2F0B60B60023FB45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A4CF9382F0B60B60023FB45 /* Assets.xcassets */; };
+		5A4CF9472F0B66FC0023FB45 /* Workout+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9452F0B66FC0023FB45 /* Workout+Extensions.swift */; };
+		5A4CF9482F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9442F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld */; };
+		5A4CF94A2F0B67AB0023FB45 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9492F0B67AB0023FB45 /* PersistenceController.swift */; };
+		5A4CF94C2F0B6AFF0023FB45 /* WorkoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF94B2F0B6AFF0023FB45 /* WorkoutModel.swift */; };
+		5A4CF94E2F0B6B1E0023FB45 /* WorkoutRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF94D2F0B6B1E0023FB45 /* WorkoutRepository.swift */; };
+		5A4CF9522F0B6CBC0023FB45 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9512F0B6CBC0023FB45 /* RootView.swift */; };
+		5A4CF9532F0B6CBC0023FB45 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9502F0B6CBC0023FB45 /* HomeView.swift */; };
+		5A4CF9542F0B6CBC0023FB45 /* APIKeyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF94F2F0B6CBC0023FB45 /* APIKeyInputView.swift */; };
+		5A4CF9562F0B6CC80023FB45 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9552F0B6CC80023FB45 /* KeychainManager.swift */; };
+		5A4CF9582F0B6F220023FB45 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9572F0B6F220023FB45 /* OpenAIService.swift */; };
+		5A4CF95A2F0B6F3C0023FB45 /* PromptTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9592F0B6F3C0023FB45 /* PromptTemplates.swift */; };
+		5A4CF95C2F0B718D0023FB45 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF95B2F0B718D0023FB45 /* SpeechRecognizer.swift */; };
+		5A4CF95E2F0C6DE30023FB45 /* VoiceRecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */; };
+		5A4CF9602F0C70720023FB45 /* LogWorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF95F2F0C70720023FB45 /* LogWorkoutView.swift */; };
+		5A4CF9622F0C71F20023FB45 /* LogWorkoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9612F0C71F20023FB45 /* LogWorkoutViewModel.swift */; };
+		5A4CF9642F0C78950023FB45 /* WorkoutConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9632F0C78950023FB45 /* WorkoutConfirmationViewModel.swift */; };
+		5A4CF9662F0C78AA0023FB45 /* WorkoutConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9652F0C78AA0023FB45 /* WorkoutConfirmationView.swift */; };
+		5A4CF9682F0C82D50023FB45 /* TemplatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9672F0C82D50023FB45 /* TemplatePickerView.swift */; };
+		5A4CF96A2F0C87700023FB45 /* TemplateEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9692F0C87700023FB45 /* TemplateEditViewModel.swift */; };
+		5A4CF96C2F0C87820023FB45 /* TemplateEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF96B2F0C87820023FB45 /* TemplateEditView.swift */; };
+		5A4CF96F2F0C8D670023FB45 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF96D2F0C8D670023FB45 /* ChatMessage.swift */; };
+		5A4CF9702F0C8D670023FB45 /* ConversationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF96E2F0C8D670023FB45 /* ConversationContext.swift */; };
+		5A4CF9722F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9712F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift */; };
+		5A4CF9742F0C8DC60023FB45 /* ReviewWorkoutsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9732F0C8DC60023FB45 /* ReviewWorkoutsView.swift */; };
+		5A4CF97A2F0C8DE70023FB45 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9782F0C8DE70023FB45 /* TypingIndicatorView.swift */; };
+		5A4CF97B2F0C8DE70023FB45 /* ChatBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9752F0C8DE70023FB45 /* ChatBubbleView.swift */; };
+		5A4CF97C2F0C8DE70023FB45 /* ExampleQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9772F0C8DE70023FB45 /* ExampleQuestionsView.swift */; };
+		5A4CF97D2F0C8DE70023FB45 /* VoiceInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9792F0C8DE70023FB45 /* VoiceInputSheet.swift */; };
+		5A4CF97E2F0C8DE70023FB45 /* ChatInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9762F0C8DE70023FB45 /* ChatInputView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5A4CF92A2F0B604E0023FB45 /* FitnessTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitnessTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A4CF9382F0B60B60023FB45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5A4CF9392F0B60B60023FB45 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5A4CF93A2F0B60B60023FB45 /* FitnessTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTrackerApp.swift; sourceTree = "<group>"; };
+		5A4CF9452F0B66FC0023FB45 /* Workout+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Workout+Extensions.swift"; path = "../Models/Workout+Extensions.swift"; sourceTree = "<group>"; };
+		5A4CF9462F0B66FC0023FB45 /* FitnessTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FitnessTracker.xcdatamodel; sourceTree = "<group>"; };
+		5A4CF9492F0B67AB0023FB45 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		5A4CF94B2F0B6AFF0023FB45 /* WorkoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutModel.swift; sourceTree = "<group>"; };
+		5A4CF94D2F0B6B1E0023FB45 /* WorkoutRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRepository.swift; sourceTree = "<group>"; };
+		5A4CF94F2F0B6CBC0023FB45 /* APIKeyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyInputView.swift; sourceTree = "<group>"; };
+		5A4CF9502F0B6CBC0023FB45 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		5A4CF9512F0B6CBC0023FB45 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		5A4CF9552F0B6CC80023FB45 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		5A4CF9572F0B6F220023FB45 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
+		5A4CF9592F0B6F3C0023FB45 /* PromptTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplates.swift; sourceTree = "<group>"; };
+		5A4CF95B2F0B718D0023FB45 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoiceRecordButton.swift; path = Views/Components/VoiceRecordButton.swift; sourceTree = "<group>"; };
+		5A4CF95F2F0C70720023FB45 /* LogWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWorkoutView.swift; sourceTree = "<group>"; };
+		5A4CF9612F0C71F20023FB45 /* LogWorkoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWorkoutViewModel.swift; sourceTree = "<group>"; };
+		5A4CF9632F0C78950023FB45 /* WorkoutConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutConfirmationViewModel.swift; sourceTree = "<group>"; };
+		5A4CF9652F0C78AA0023FB45 /* WorkoutConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutConfirmationView.swift; sourceTree = "<group>"; };
+		5A4CF9672F0C82D50023FB45 /* TemplatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatePickerView.swift; sourceTree = "<group>"; };
+		5A4CF9692F0C87700023FB45 /* TemplateEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateEditViewModel.swift; sourceTree = "<group>"; };
+		5A4CF96B2F0C87820023FB45 /* TemplateEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateEditView.swift; sourceTree = "<group>"; };
+		5A4CF96D2F0C8D670023FB45 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		5A4CF96E2F0C8D670023FB45 /* ConversationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationContext.swift; sourceTree = "<group>"; };
+		5A4CF9712F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWorkoutsViewModel.swift; sourceTree = "<group>"; };
+		5A4CF9732F0C8DC60023FB45 /* ReviewWorkoutsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewWorkoutsView.swift; sourceTree = "<group>"; };
+		5A4CF9752F0C8DE70023FB45 /* ChatBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChatBubbleView.swift; path = Components/ChatBubbleView.swift; sourceTree = "<group>"; };
+		5A4CF9762F0C8DE70023FB45 /* ChatInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChatInputView.swift; path = Components/ChatInputView.swift; sourceTree = "<group>"; };
+		5A4CF9772F0C8DE70023FB45 /* ExampleQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExampleQuestionsView.swift; path = Components/ExampleQuestionsView.swift; sourceTree = "<group>"; };
+		5A4CF9782F0C8DE70023FB45 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TypingIndicatorView.swift; path = Components/TypingIndicatorView.swift; sourceTree = "<group>"; };
+		5A4CF9792F0C8DE70023FB45 /* VoiceInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VoiceInputSheet.swift; path = Components/VoiceInputSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		5A4CF92C2F0B604E0023FB45 /* FitnessTracker */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FitnessTracker;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5A4CF9272F0B604E0023FB45 /* Frameworks */ = {
@@ -32,7 +91,7 @@
 		5A4CF9212F0B604E0023FB45 = {
 			isa = PBXGroup;
 			children = (
-				5A4CF92C2F0B604E0023FB45 /* FitnessTracker */,
+				5A4CF93B2F0B60B60023FB45 /* FitnessTracker */,
 				5A4CF92B2F0B604E0023FB45 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +102,85 @@
 				5A4CF92A2F0B604E0023FB45 /* FitnessTracker.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5A4CF93B2F0B60B60023FB45 /* FitnessTracker */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF95D2F0C6DE30023FB45 /* VoiceRecordButton.swift */,
+				5A4CF9442F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld */,
+				5A4CF9432F0B619E0023FB45 /* Utilities */,
+				5A4CF9422F0B61960023FB45 /* Services */,
+				5A4CF9412F0B61890023FB45 /* ViewModels */,
+				5A4CF9402F0B61830023FB45 /* Views */,
+				5A4CF93F2F0B60B80023FB45 /* Models */,
+				5A4CF9382F0B60B60023FB45 /* Assets.xcassets */,
+				5A4CF93A2F0B60B60023FB45 /* FitnessTrackerApp.swift */,
+			);
+			path = FitnessTracker;
+			sourceTree = "<group>";
+		};
+		5A4CF93F2F0B60B80023FB45 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF96D2F0C8D670023FB45 /* ChatMessage.swift */,
+				5A4CF96E2F0C8D670023FB45 /* ConversationContext.swift */,
+				5A4CF94B2F0B6AFF0023FB45 /* WorkoutModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		5A4CF9402F0B61830023FB45 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF9732F0C8DC60023FB45 /* ReviewWorkoutsView.swift */,
+				5A4CF9392F0B60B60023FB45 /* ContentView.swift */,
+				5A4CF9752F0C8DE70023FB45 /* ChatBubbleView.swift */,
+				5A4CF9762F0C8DE70023FB45 /* ChatInputView.swift */,
+				5A4CF9772F0C8DE70023FB45 /* ExampleQuestionsView.swift */,
+				5A4CF9782F0C8DE70023FB45 /* TypingIndicatorView.swift */,
+				5A4CF9792F0C8DE70023FB45 /* VoiceInputSheet.swift */,
+				5A4CF94F2F0B6CBC0023FB45 /* APIKeyInputView.swift */,
+				5A4CF9502F0B6CBC0023FB45 /* HomeView.swift */,
+				5A4CF9512F0B6CBC0023FB45 /* RootView.swift */,
+				5A4CF96B2F0C87820023FB45 /* TemplateEditView.swift */,
+				5A4CF9672F0C82D50023FB45 /* TemplatePickerView.swift */,
+				5A4CF9652F0C78AA0023FB45 /* WorkoutConfirmationView.swift */,
+				5A4CF95F2F0C70720023FB45 /* LogWorkoutView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5A4CF9412F0B61890023FB45 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF9712F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift */,
+				5A4CF9612F0C71F20023FB45 /* LogWorkoutViewModel.swift */,
+				5A4CF9692F0C87700023FB45 /* TemplateEditViewModel.swift */,
+				5A4CF9632F0C78950023FB45 /* WorkoutConfirmationViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		5A4CF9422F0B61960023FB45 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF9492F0B67AB0023FB45 /* PersistenceController.swift */,
+				5A4CF95B2F0B718D0023FB45 /* SpeechRecognizer.swift */,
+				5A4CF9572F0B6F220023FB45 /* OpenAIService.swift */,
+				5A4CF9552F0B6CC80023FB45 /* KeychainManager.swift */,
+				5A4CF94D2F0B6B1E0023FB45 /* WorkoutRepository.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		5A4CF9432F0B619E0023FB45 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				5A4CF9592F0B6F3C0023FB45 /* PromptTemplates.swift */,
+				5A4CF9452F0B66FC0023FB45 /* Workout+Extensions.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -59,9 +197,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				5A4CF92C2F0B604E0023FB45 /* FitnessTracker */,
 			);
 			name = FitnessTracker;
 			packageProductDependencies = (
@@ -109,6 +244,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A4CF93E2F0B60B60023FB45 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +255,37 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A4CF9472F0B66FC0023FB45 /* Workout+Extensions.swift in Sources */,
+				5A4CF94C2F0B6AFF0023FB45 /* WorkoutModel.swift in Sources */,
+				5A4CF9622F0C71F20023FB45 /* LogWorkoutViewModel.swift in Sources */,
+				5A4CF9482F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld in Sources */,
+				5A4CF9522F0B6CBC0023FB45 /* RootView.swift in Sources */,
+				5A4CF9722F0C8DB40023FB45 /* ReviewWorkoutsViewModel.swift in Sources */,
+				5A4CF95A2F0B6F3C0023FB45 /* PromptTemplates.swift in Sources */,
+				5A4CF9532F0B6CBC0023FB45 /* HomeView.swift in Sources */,
+				5A4CF9742F0C8DC60023FB45 /* ReviewWorkoutsView.swift in Sources */,
+				5A4CF9642F0C78950023FB45 /* WorkoutConfirmationViewModel.swift in Sources */,
+				5A4CF9542F0B6CBC0023FB45 /* APIKeyInputView.swift in Sources */,
+				5A4CF9602F0C70720023FB45 /* LogWorkoutView.swift in Sources */,
+				5A4CF95C2F0B718D0023FB45 /* SpeechRecognizer.swift in Sources */,
+				5A4CF96A2F0C87700023FB45 /* TemplateEditViewModel.swift in Sources */,
+				5A4CF9562F0B6CC80023FB45 /* KeychainManager.swift in Sources */,
+				5A4CF9682F0C82D50023FB45 /* TemplatePickerView.swift in Sources */,
+				5A4CF9662F0C78AA0023FB45 /* WorkoutConfirmationView.swift in Sources */,
+				5A4CF93C2F0B60B60023FB45 /* ContentView.swift in Sources */,
+				5A4CF97A2F0C8DE70023FB45 /* TypingIndicatorView.swift in Sources */,
+				5A4CF97B2F0C8DE70023FB45 /* ChatBubbleView.swift in Sources */,
+				5A4CF97C2F0C8DE70023FB45 /* ExampleQuestionsView.swift in Sources */,
+				5A4CF97D2F0C8DE70023FB45 /* VoiceInputSheet.swift in Sources */,
+				5A4CF97E2F0C8DE70023FB45 /* ChatInputView.swift in Sources */,
+				5A4CF96C2F0C87820023FB45 /* TemplateEditView.swift in Sources */,
+				5A4CF95E2F0C6DE30023FB45 /* VoiceRecordButton.swift in Sources */,
+				5A4CF94E2F0B6B1E0023FB45 /* WorkoutRepository.swift in Sources */,
+				5A4CF93D2F0B60B60023FB45 /* FitnessTrackerApp.swift in Sources */,
+				5A4CF94A2F0B67AB0023FB45 /* PersistenceController.swift in Sources */,
+				5A4CF9582F0B6F220023FB45 /* OpenAIService.swift in Sources */,
+				5A4CF96F2F0C8D670023FB45 /* ChatMessage.swift in Sources */,
+				5A4CF9702F0C8D670023FB45 /* ConversationContext.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,13 +418,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S95XJ2HMZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs microphone access to record your workout descriptions using voice.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to convert your voice into workout data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -282,13 +453,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S95XJ2HMZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs microphone access to record your workout descriptions using voice.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to convert your voice into workout data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -328,6 +503,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		5A4CF9442F0B66FC0023FB45 /* FitnessTracker.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				5A4CF9462F0B66FC0023FB45 /* FitnessTracker.xcdatamodel */,
+			);
+			currentVersion = 5A4CF9462F0B66FC0023FB45 /* FitnessTracker.xcdatamodel */;
+			name = FitnessTracker.xcdatamodeld;
+			path = Models/FitnessTracker.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 5A4CF9222F0B604E0023FB45 /* Project object */;
 }
