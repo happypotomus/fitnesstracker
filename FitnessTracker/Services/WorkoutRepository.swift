@@ -17,14 +17,101 @@ class WorkoutRepository {
 
     // MARK: - Save Workout
 
-    /// Saves a workout session to CoreData
+    /// Saves a workout session to CoreData (creates new or updates existing)
     func saveWorkout(_ workout: WorkoutSession) -> Bool {
         let context = persistenceController.container.viewContext
 
+        // Check if workout already exists
+        let request: NSFetchRequest<Workout> = Workout.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", workout.id as CVarArg)
+
+        do {
+            let existingWorkouts = try context.fetch(request)
+
+            if let existingWorkout = existingWorkouts.first {
+                // Update existing workout
+                print("🔄 Updating existing workout: \(workout.id)")
+                return updateExistingWorkout(existingWorkout, with: workout, in: context)
+            } else {
+                // Create new workout
+                print("➕ Creating new workout: \(workout.id)")
+                return createNewWorkout(workout, in: context)
+            }
+        } catch {
+            print("❌ Failed to check for existing workout: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Update Workout
+
+    /// Updates an existing workout in CoreData
+    func updateWorkout(_ workout: WorkoutSession) -> Bool {
+        let context = persistenceController.container.viewContext
+        let request: NSFetchRequest<Workout> = Workout.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", workout.id as CVarArg)
+
+        do {
+            let workouts = try context.fetch(request)
+            guard let existingWorkout = workouts.first else {
+                print("⚠️ Workout not found for update: \(workout.id)")
+                return false
+            }
+
+            return updateExistingWorkout(existingWorkout, with: workout, in: context)
+        } catch {
+            print("❌ Failed to update workout: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Helper: Update Existing Workout
+
+    private func updateExistingWorkout(_ entity: Workout, with workout: WorkoutSession, in context: NSManagedObjectContext) -> Bool {
+        // Update workout properties
+        entity.date = workout.date
+        entity.name = workout.name
+        entity.isTemplate = workout.isTemplate
+
+        // Delete all existing exercises
+        if let existingExercises = entity.exercises as? Set<Exercise> {
+            for exercise in existingExercises {
+                context.delete(exercise)
+            }
+        }
+
+        // Create new exercise entities
+        for exercise in workout.exercises {
+            let exerciseEntity = Exercise(context: context)
+            exerciseEntity.id = exercise.id
+            exerciseEntity.name = exercise.name
+            exerciseEntity.sets = Int16(exercise.sets)
+            exerciseEntity.reps = Int16(exercise.reps)
+            exerciseEntity.weight = exercise.weight
+            exerciseEntity.rpe = Int16(exercise.rpe)
+            exerciseEntity.notes = exercise.notes
+            exerciseEntity.order = Int16(exercise.order)
+            exerciseEntity.workout = entity
+        }
+
+        do {
+            try context.save()
+            print("✅ Workout updated successfully: \(workout.exercises.count) exercises")
+            return true
+        } catch {
+            print("❌ Failed to save updated workout: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Helper: Create New Workout
+
+    private func createNewWorkout(_ workout: WorkoutSession, in context: NSManagedObjectContext) -> Bool {
         let workoutEntity = Workout(context: context)
         workoutEntity.id = workout.id
         workoutEntity.date = workout.date
         workoutEntity.name = workout.name
+        workoutEntity.isTemplate = workout.isTemplate
 
         // Create exercise entities
         for exercise in workout.exercises {
@@ -42,10 +129,10 @@ class WorkoutRepository {
 
         do {
             try context.save()
-            print("✅ Workout saved successfully: \(workout.exercises.count) exercises")
+            print("✅ Workout created successfully: \(workout.exercises.count) exercises")
             return true
         } catch {
-            print("❌ Failed to save workout: \(error)")
+            print("❌ Failed to create workout: \(error)")
             return false
         }
     }
@@ -57,8 +144,8 @@ class WorkoutRepository {
         let context = persistenceController.container.viewContext
         let request: NSFetchRequest<Workout> = Workout.fetchRequest()
 
-        // Only fetch non-templates (name is nil)
-        request.predicate = NSPredicate(format: "name == nil")
+        // Only fetch non-templates
+        request.predicate = NSPredicate(format: "isTemplate == NO")
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Workout.date, ascending: false)]
 
         do {
@@ -77,7 +164,7 @@ class WorkoutRepository {
 
         // Only fetch non-templates within date range
         request.predicate = NSPredicate(
-            format: "name == nil AND date >= %@ AND date <= %@",
+            format: "isTemplate == NO AND date >= %@ AND date <= %@",
             startDate as NSDate,
             endDate as NSDate
         )
@@ -124,7 +211,8 @@ class WorkoutRepository {
         let template = WorkoutSession(
             date: Date(),
             exercises: exercises,
-            name: name
+            name: name,
+            isTemplate: true
         )
         return saveWorkout(template)
     }
@@ -134,8 +222,8 @@ class WorkoutRepository {
         let context = persistenceController.container.viewContext
         let request: NSFetchRequest<Workout> = Workout.fetchRequest()
 
-        // Only fetch templates (name is not nil)
-        request.predicate = NSPredicate(format: "name != nil")
+        // Only fetch templates
+        request.predicate = NSPredicate(format: "isTemplate == YES")
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Workout.name, ascending: true)]
 
         do {
@@ -157,7 +245,8 @@ class WorkoutRepository {
             id: id,
             date: Date(),
             exercises: exercises,
-            name: name
+            name: name,
+            isTemplate: true
         )
         return saveWorkout(template)
     }
@@ -183,7 +272,8 @@ class WorkoutRepository {
             id: workout.id ?? UUID(),
             date: workout.date ?? Date(),
             exercises: exercises,
-            name: workout.name
+            name: workout.name,
+            isTemplate: workout.isTemplate
         )
     }
 }

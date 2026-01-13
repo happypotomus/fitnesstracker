@@ -11,10 +11,14 @@ struct TemplatePickerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
     @State private var templateToEdit: WorkoutSession?
+    @State private var templateToDelete: WorkoutSession?
+    @State private var showDeleteConfirmation = false
 
     let templates: [WorkoutSession]
     let onTemplateSelected: (WorkoutSession) -> Void
     var onTemplateEdited: (() -> Void)?
+
+    private let repository = WorkoutRepository()
 
     var filteredTemplates: [WorkoutSession] {
         if searchText.isEmpty {
@@ -60,6 +64,10 @@ struct TemplatePickerView: View {
                                     template: template,
                                     onEdit: {
                                         templateToEdit = template
+                                    },
+                                    onDelete: {
+                                        templateToDelete = template
+                                        showDeleteConfirmation = true
                                     }
                                 )
                                 .onTapGesture {
@@ -87,6 +95,27 @@ struct TemplatePickerView: View {
                     onTemplateEdited?()
                 }
             }
+            .alert("Delete Template?", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    if let template = templateToDelete {
+                        deleteTemplate(template)
+                    }
+                }
+            } message: {
+                Text("This template will be permanently deleted. This action cannot be undone.")
+            }
+        }
+    }
+
+    // MARK: - Delete Template
+
+    private func deleteTemplate(_ template: WorkoutSession) {
+        if repository.deleteWorkout(id: template.id) {
+            print("✅ Template deleted successfully")
+            onTemplateEdited?() // Notify parent to refresh
+        } else {
+            print("❌ Failed to delete template")
         }
     }
 }
@@ -96,6 +125,7 @@ struct TemplatePickerView: View {
 struct TemplateCard: View {
     let template: WorkoutSession
     var onEdit: () -> Void
+    var onDelete: () -> Void
 
     var body: some View {
         HStack {
@@ -121,6 +151,14 @@ struct TemplateCard: View {
                 Image(systemName: "pencil.circle.fill")
                     .font(.title2)
                     .foregroundColor(.blue)
+            }
+            .buttonStyle(.plain)
+
+            // Delete button
+            Button(action: onDelete) {
+                Image(systemName: "trash.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.red)
             }
             .buttonStyle(.plain)
 

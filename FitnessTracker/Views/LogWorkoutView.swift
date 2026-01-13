@@ -124,69 +124,73 @@ struct LogWorkoutView: View {
 
                     // Success State - Show Parsed Workout
                     if let workout = viewModel.parsedWorkout {
-                        VStack(spacing: 16) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 50))
-                                .foregroundColor(.green)
+                        ScrollView {
+                            VStack(spacing: 16) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.green)
 
-                            Text("Workout Parsed!")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                                Text("Workout Parsed!")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
 
-                            Text("\(workout.exercises.count) exercise(s) detected")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                Text("\(workout.exercises.count) exercise(s) detected")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
 
-                            // Show exercises
-                            VStack(alignment: .leading, spacing: 12) {
-                                ForEach(workout.exercises) { exercise in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(exercise.name)
-                                            .font(.headline)
+                                // Show exercises
+                                VStack(alignment: .leading, spacing: 12) {
+                                    ForEach(workout.exercises) { exercise in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(exercise.name)
+                                                .font(.headline)
 
-                                        Text("\(exercise.sets) sets × \(exercise.reps) reps @ \(Int(exercise.weight))lbs")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
-
-                                        if exercise.rpe > 0 {
-                                            Text("RPE: \(exercise.rpe)/10")
-                                                .font(.caption)
-                                                .foregroundColor(.blue)
-                                        }
-
-                                        if let notes = exercise.notes, !notes.isEmpty {
-                                            Text("Notes: \(notes)")
-                                                .font(.caption)
+                                            Text("\(exercise.sets) sets × \(exercise.reps) reps @ \(Int(exercise.weight))lbs")
+                                                .font(.subheadline)
                                                 .foregroundColor(.secondary)
-                                                .italic()
+
+                                            if exercise.rpe > 0 {
+                                                Text("RPE: \(exercise.rpe)/10")
+                                                    .font(.caption)
+                                                    .foregroundColor(.blue)
+                                            }
+
+                                            if let notes = exercise.notes, !notes.isEmpty {
+                                                Text("Notes: \(notes)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .italic()
+                                            }
                                         }
+                                        .padding()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(12)
                                     }
+                                }
+                                .padding(.horizontal)
+
+                                // Continue to Confirmation Button
+                                Button(action: {
+                                    showConfirmation = true
+                                }) {
+                                    HStack {
+                                        Text("Continue")
+                                        Image(systemName: "arrow.right")
+                                    }
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
                                     .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color(.systemGray6))
+                                    .background(Color.blue)
                                     .cornerRadius(12)
                                 }
+                                .padding(.horizontal)
+                                .padding(.bottom, 100)
                             }
-                            .padding(.horizontal)
-
-                            // Continue to Confirmation Button
-                            Button(action: {
-                                showConfirmation = true
-                            }) {
-                                HStack {
-                                    Text("Continue")
-                                    Image(systemName: "arrow.right")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                            }
-                            .padding(.horizontal)
+                            .padding()
                         }
-                        .padding()
+                        .scrollDismissesKeyboard(.interactively)
                     }
 
                     Spacer()
@@ -244,6 +248,7 @@ struct LogWorkoutView: View {
         workout.id = UUID() // New ID
         workout.date = Date() // Today's date
         workout.name = nil // Clear template name (it's now a regular workout)
+        workout.isTemplate = false // ← FIX: Mark as regular workout, not template
 
         // Set parsed workout to show confirmation screen
         viewModel.parsedWorkout = workout

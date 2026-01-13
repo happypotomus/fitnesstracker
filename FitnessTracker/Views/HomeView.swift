@@ -12,10 +12,12 @@ struct HomeView: View {
     @State private var showReviewWorkouts: Bool = false
     @State private var showLogMeal: Bool = false
     @State private var showReviewNutrition: Bool = false
+    @State private var showSettings: Bool = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        NavigationView {
+            VStack(spacing: 20) {
+                Spacer()
 
             // App title
             VStack(spacing: 8) {
@@ -122,19 +124,34 @@ struct HomeView: View {
             .padding(.horizontal, 32)
 
             Spacer()
-        }
-        .padding()
-        .sheet(isPresented: $showLogWorkout) {
-            LogWorkoutView()
-        }
-        .sheet(isPresented: $showReviewWorkouts) {
-            ReviewWorkoutsView()
-        }
-        .sheet(isPresented: $showLogMeal) {
-            LogMealView()
-        }
-        .sheet(isPresented: $showReviewNutrition) {
-            ReviewNutritionView()
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .sheet(isPresented: $showLogWorkout) {
+                LogWorkoutView()
+            }
+            .sheet(isPresented: $showReviewWorkouts) {
+                ReviewWorkoutsView()
+            }
+            .sheet(isPresented: $showLogMeal) {
+                LogMealView()
+            }
+            .sheet(isPresented: $showReviewNutrition) {
+                ReviewNutritionView()
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+            }
         }
     }
 }

@@ -96,7 +96,7 @@ struct ReviewNutritionView: View {
                 ReviewNutritionChatView(viewModel: viewModel)
             }
             .sheet(item: $mealToEdit) { meal in
-                MealConfirmationView(meal: meal) {
+                MealConfirmationView(meal: meal, isEditMode: true) {
                     mealToEdit = nil
                     refreshTrigger.toggle()
                     updateCalendarHighlights()

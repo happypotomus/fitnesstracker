@@ -48,8 +48,8 @@ struct CalendarView: View {
 
             // Week day labels
             HStack(spacing: 8) {
-                ForEach(weekDays, id: \.self) { day in
-                    Text(day)
+                ForEach(weekDays.indices, id: \.self) { index in
+                    Text(weekDays[index])
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.secondary)

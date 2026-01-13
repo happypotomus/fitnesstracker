@@ -83,13 +83,23 @@ struct WorkoutDayCard: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(timeString)
-                        .font(.subheadline)
+                    Text(workout.name ?? timeString)
+                        .font(.headline)
                         .fontWeight(.semibold)
 
-                    Text("\(workout.exercises.count) exercise\(workout.exercises.count == 1 ? "" : "s") • \(workout.totalSets) sets")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 4) {
+                        if workout.name != nil {
+                            Text(timeString)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("•")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Text("\(workout.exercises.count) exercise\(workout.exercises.count == 1 ? "" : "s") • \(workout.totalSets) sets")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()

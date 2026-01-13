@@ -16,10 +16,12 @@ struct WorkoutConfirmationView: View {
     @State private var templateName: String = ""
     @State private var showFinalSuccess: Bool = false
 
+    let isEditMode: Bool
     var onWorkoutSaved: (() -> Void)?
 
-    init(workout: WorkoutSession, onWorkoutSaved: (() -> Void)? = nil) {
+    init(workout: WorkoutSession, isEditMode: Bool = false, onWorkoutSaved: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: WorkoutConfirmationViewModel(workout: workout))
+        self.isEditMode = isEditMode
         self.onWorkoutSaved = onWorkoutSaved
     }
 
@@ -38,6 +40,24 @@ struct WorkoutConfirmationView: View {
                             .foregroundColor(.secondary)
                     }
                     .padding(.top)
+
+                    // Workout Name
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Workout Name")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.leading, 4)
+
+                        TextField("e.g., Chest & Triceps, Back Day", text: Binding(
+                            get: { viewModel.workout.name ?? "" },
+                            set: { viewModel.workout.name = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.plain)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
 
                     // Date Picker
                     DatePicker(
@@ -133,9 +153,11 @@ struct WorkoutConfirmationView: View {
             // Alert 1: Save as Template?
             .alert("Save as Template?", isPresented: $showTemplatePrompt) {
                 Button("Yes") {
+                    print("🔍 User clicked YES to save as template")
                     showTemplateNameInput = true
                 }
                 Button("No", role: .cancel) {
+                    print("🔍 User clicked NO to save as template")
                     // Skip template, go to final success
                     showFinalSuccess = true
                 }
@@ -160,7 +182,7 @@ struct WorkoutConfirmationView: View {
                 Text("Give this template a name so you can reuse it later")
             }
             // Alert 3: Final Success
-            .alert("Workout Saved!", isPresented: $showFinalSuccess) {
+            .alert(isEditMode ? "Workout Updated!" : "Workout Saved!", isPresented: $showFinalSuccess) {
                 Button("OK") {
                     // Dismiss confirmation view
                     dismiss()
@@ -168,7 +190,7 @@ struct WorkoutConfirmationView: View {
                     onWorkoutSaved?()
                 }
             } message: {
-                Text("Your workout has been saved successfully!")
+                Text(isEditMode ? "Your workout has been updated successfully!" : "Your workout has been saved successfully!")
             }
         }
     }
@@ -177,8 +199,13 @@ struct WorkoutConfirmationView: View {
         let success = viewModel.saveWorkout()
 
         if success {
-            // Show template prompt first
-            showTemplatePrompt = true
+            if isEditMode {
+                // Skip template prompt when editing
+                showFinalSuccess = true
+            } else {
+                // Show template prompt when creating new workout
+                showTemplatePrompt = true
+            }
         }
     }
 }

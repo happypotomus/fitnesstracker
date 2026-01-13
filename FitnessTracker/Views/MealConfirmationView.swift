@@ -16,10 +16,12 @@ struct MealConfirmationView: View {
     @State private var templateName: String = ""
     @State private var showFinalSuccess: Bool = false
 
+    let isEditMode: Bool
     var onMealSaved: (() -> Void)?
 
-    init(meal: MealSession, onMealSaved: (() -> Void)? = nil) {
+    init(meal: MealSession, isEditMode: Bool = false, onMealSaved: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: MealConfirmationViewModel(meal: meal))
+        self.isEditMode = isEditMode
         self.onMealSaved = onMealSaved
     }
 
@@ -229,13 +231,13 @@ struct MealConfirmationView: View {
                 Text("Give this template a name so you can reuse it later")
             }
             // Alert 3: Final Success
-            .alert("Meal Saved!", isPresented: $showFinalSuccess) {
+            .alert(isEditMode ? "Meal Updated!" : "Meal Saved!", isPresented: $showFinalSuccess) {
                 Button("OK") {
                     dismiss()
                     onMealSaved?()
                 }
             } message: {
-                Text("Your meal has been saved successfully!")
+                Text(isEditMode ? "Your meal has been updated successfully!" : "Your meal has been saved successfully!")
             }
         }
     }
@@ -244,7 +246,13 @@ struct MealConfirmationView: View {
         let success = viewModel.saveMeal()
 
         if success {
-            showTemplatePrompt = true
+            if isEditMode {
+                // Skip template prompt when editing
+                showFinalSuccess = true
+            } else {
+                // Show template prompt when creating new meal
+                showTemplatePrompt = true
+            }
         }
     }
 }

@@ -7,12 +7,16 @@ Voice-first iOS fitness tracking app with OpenAI GPT integration for natural lan
 **Primary Use Case**: User speaks workout description ("I did 3 sets of bench press at 185 pounds, RPE 7") → AI parses into structured data → User reviews/edits → Saves to local CoreData.
 
 **Key Features**:
-- Voice-based workout logging using Apple Speech Recognition
-- AI-powered workout parsing (OpenAI GPT-4o-mini)
-- Inline editing of parsed workouts before saving
-- Template system with voice and UI-based selection
-- Template editing and management
-- AI-powered workout history chat with conversation memory
+- Voice-based workout and nutrition logging using Apple Speech Recognition
+- AI-powered parsing with auto-generated workout names (OpenAI GPT-4o-mini)
+- Date extraction from voice input with timezone correction ("on jan 2nd", "yesterday", "this past Saturday")
+- Inline editing of parsed workouts/meals before saving
+- Template system for workouts and meals with voice and UI-based selection, editing, and deletion
+- Calendar view with green highlights for logged dates
+- AI-powered history chat with conversation memory for both workouts and nutrition
+- Recovery activities (sauna, stretching) and cardio recognized as valid exercises
+- Data backup and restore via JSON export/import (preserves data across reinstalls)
+- Settings screen with data management tools
 - Local-only data storage (no cloud sync)
 - Minimal, clean UI design inspired by Apple Health
 
@@ -34,9 +38,9 @@ Voice-first iOS fitness tracking app with OpenAI GPT integration for natural lan
 ## Architecture Pattern: MVVM
 
 ### Models
-- **CoreData Entities**: `Workout`, `Exercise` (managed objects)
-- **Swift Structs**: `WorkoutSession`, `WorkoutExercise` (clean data transfer objects)
-- **Chat Models**: `ChatMessage`, `ConversationContext` (for workout history queries)
+- **CoreData Entities**: `Workout`, `Exercise`, `Meal`, `FoodItem` (managed objects)
+- **Swift Structs**: `WorkoutSession`, `WorkoutExercise`, `MealSession`, `MealFood` (clean data transfer objects)
+- **Chat Models**: `ChatMessage`, `ConversationContext` (for history queries)
 - Purpose: Separation between persistence layer and business logic
 
 ### Views
@@ -106,7 +110,8 @@ Without this import, you'll get: "Type does not conform to protocol 'ObservableO
 |-----------|------|----------|-------|
 | id | UUID | No | Primary key |
 | date | Date | No | Workout timestamp |
-| name | String | Yes | Template name (null for regular workouts) |
+| name | String | Yes | Descriptive workout name (e.g., "Chest & Triceps") |
+| isTemplate | Bool | No | True if saved as template, false for regular workouts |
 | exercises | Relationship | No | → [Exercise] with cascade delete |
 
 #### Exercise Entity
@@ -115,12 +120,35 @@ Without this import, you'll get: "Type does not conform to protocol 'ObservableO
 | id | UUID | No | Primary key |
 | name | String | No | Exercise name (e.g., "Bench Press") |
 | sets | Int16 | No | Number of sets |
-| reps | Int16 | No | Repetitions per set |
-| weight | Double | No | Weight in pounds (0 if bodyweight) |
+| reps | Int16 | No | Repetitions per set (or minutes for cardio) |
+| weight | Double | No | Weight in pounds (0 if bodyweight/cardio/recovery) |
 | rpe | Int16 | No | Rate of Perceived Exertion (0-10, 0=not set) |
 | notes | String | Yes | Optional notes/comments |
 | order | Int16 | No | Display order within workout |
 | workout | Relationship | No | ← Workout (inverse) |
+
+#### Meal Entity
+| Attribute | Type | Optional | Notes |
+|-----------|------|----------|-------|
+| id | UUID | No | Primary key |
+| date | Date | No | Meal timestamp |
+| name | String | Yes | Meal name (template or descriptive) |
+| mealType | String | Yes | breakfast, lunch, dinner, snack |
+| foodItems | Relationship | No | → [FoodItem] with cascade delete |
+
+#### FoodItem Entity
+| Attribute | Type | Optional | Notes |
+|-----------|------|----------|-------|
+| id | UUID | No | Primary key |
+| name | String | No | Food name (e.g., "Grilled Chicken Breast") |
+| portionSize | String | Yes | Portion (e.g., "6 oz", "1 cup") |
+| calories | Double | Yes | Estimated calories |
+| protein | Double | Yes | Grams of protein |
+| carbs | Double | Yes | Grams of carbs |
+| fat | Double | Yes | Grams of fat |
+| notes | String | Yes | Optional notes |
+| order | Int16 | No | Display order within meal |
+| meal | Relationship | No | ← Meal (inverse) |
 
 ### Swift Structs
 
@@ -143,8 +171,40 @@ struct WorkoutExercise: Identifiable, Codable, Equatable {
 struct WorkoutSession: Identifiable, Codable {
     var id: UUID
     var date: Date
-    var name: String?  // Template name (if applicable)
+    var name: String?  // Descriptive name ("Chest & Triceps") or template name
+    var isTemplate: Bool  // True if saved template
     var exercises: [WorkoutExercise]
+}
+```
+
+#### MealFood
+```swift
+struct MealFood: Identifiable, Codable {
+    var id: UUID
+    var name: String
+    var portionSize: String?
+    var calories: Double?
+    var protein: Double?
+    var carbs: Double?
+    var fat: Double?
+    var notes: String?
+    var order: Int
+}
+```
+
+#### MealSession
+```swift
+struct MealSession: Identifiable, Codable {
+    var id: UUID
+    var date: Date
+    var name: String?  // Meal name
+    var mealType: String?  // breakfast/lunch/dinner/snack
+    var foodItems: [MealFood]
+
+    var totalCalories: Double { /* computed */ }
+    var totalProtein: Double { /* computed */ }
+    var totalCarbs: Double { /* computed */ }
+    var totalFat: Double { /* computed */ }
 }
 ```
 
@@ -172,9 +232,10 @@ struct ConversationContext {
 ```
 
 ### Templates
-- Templates are Workout entities with a `name` field set
-- Regular workouts have `name = nil`
-- Repository filters using name predicate: `name != nil` for templates
+- Templates have `isTemplate = true` flag
+- Regular workouts/meals have `isTemplate = false`
+- All workouts now have descriptive names (GPT-generated or user-edited)
+- Repository filters using `isTemplate == YES` for templates
 - Templates can be selected via UI picker or voice command ("use my push day template")
 
 ---
@@ -186,41 +247,59 @@ FitnessTracker/
 ├── FitnessTrackerApp.swift          # App entry point
 │
 ├── Models/
-│   ├── FitnessTracker.xcdatamodeld  # CoreData schema
-│   ├── Workout+Extensions.swift     # CoreData helpers
+│   ├── FitnessTracker.xcdatamodeld  # CoreData schema (Workout, Exercise, Meal, FoodItem)
+│   ├── Workout+Extensions.swift     # CoreData helpers for Workout
+│   ├── Meal+Extensions.swift        # CoreData helpers for Meal
 │   ├── WorkoutModel.swift           # Swift structs (WorkoutSession, WorkoutExercise)
+│   ├── MealModel.swift              # Swift structs (MealSession, MealFood)
 │   ├── ChatMessage.swift            # Chat message model
 │   └── ConversationContext.swift    # Conversation history management
 │
 ├── Views/
 │   ├── RootView.swift               # Router: checks API key → HomeView or APIKeyInputView
-│   ├── HomeView.swift               # Main screen: "Log New Workout" + "Review Workouts" buttons
+│   ├── HomeView.swift               # Main screen: 2x2 grid (workouts + nutrition)
 │   ├── APIKeyInputView.swift        # First-run: secure API key input
 │   ├── LogWorkoutView.swift         # Voice recording → AI parsing → display results
-│   ├── WorkoutConfirmationView.swift # Edit parsed workout + save + template prompt
-│   ├── TemplatePickerView.swift     # Select and edit templates
-│   ├── TemplateEditView.swift       # Edit template name and exercises
-│   ├── ReviewWorkoutsView.swift     # Chat interface for querying workout history
+│   ├── WorkoutConfirmationView.swift # Edit parsed workout (with name field) + save
+│   ├── TemplatePickerView.swift     # Select and edit workout templates
+│   ├── TemplateEditView.swift       # Edit workout template name and exercises
+│   ├── ReviewWorkoutsView.swift     # Calendar view + workout list + floating chat
+│   ├── WorkoutDayListView.swift     # Shows workouts for selected date with edit/delete
+│   ├── LogMealView.swift            # Voice recording → AI meal parsing → display
+│   ├── MealConfirmationView.swift   # Edit parsed meal + save + template prompt
+│   ├── NutritionTemplatePickerView.swift # Select and edit meal templates
+│   ├── NutritionTemplateEditView.swift # Edit meal template
+│   ├── ReviewNutritionView.swift    # Calendar view + meal list + floating chat
+│   ├── MealDayListView.swift        # Shows meals for selected date with edit/delete
 │   └── Components/
 │       ├── VoiceRecordButton.swift  # Reusable voice recording UI with pulsing animation
 │       ├── ChatBubbleView.swift     # User (blue) and AI (gray) message bubbles
 │       ├── ExampleQuestionsView.swift # Horizontal scrolling question chips
 │       ├── ChatInputView.swift      # Text field + voice button + send button
 │       ├── VoiceInputSheet.swift    # Sheet for voice input in chat
-│       └── TypingIndicatorView.swift # Animated typing indicator
+│       ├── TypingIndicatorView.swift # Animated typing indicator
+│       ├── CalendarView.swift       # Monthly calendar with green date highlights
+│       └── FloatingChatButton.swift # Animated floating chat button (bottom right)
 │
 ├── ViewModels/
 │   ├── LogWorkoutViewModel.swift         # State for workout logging flow
 │   ├── WorkoutConfirmationViewModel.swift # State for editing/validation/saving
-│   ├── TemplateEditViewModel.swift       # State for template editing
-│   └── ReviewWorkoutsViewModel.swift     # State for chat interface
+│   ├── TemplateEditViewModel.swift       # State for workout template editing
+│   ├── ReviewWorkoutsViewModel.swift     # State for workout chat interface
+│   ├── CalendarViewModel.swift           # State for calendar (month navigation, selection)
+│   ├── LogMealViewModel.swift            # State for meal logging flow
+│   ├── MealConfirmationViewModel.swift   # State for meal editing/validation/saving
+│   ├── NutritionTemplateEditViewModel.swift # State for meal template editing
+│   └── ReviewNutritionViewModel.swift    # State for nutrition chat interface
 │
 ├── Services/
 │   ├── PersistenceController.swift  # CoreData stack (singleton)
-│   ├── WorkoutRepository.swift      # Data access layer (CRUD + templates)
+│   ├── WorkoutRepository.swift      # Workout data access (CRUD + templates)
+│   ├── NutritionRepository.swift    # Meal data access (CRUD + templates)
 │   ├── KeychainManager.swift        # Secure API key storage
-│   ├── OpenAIService.swift          # API integration (parsing + querying)
-│   └── SpeechRecognizer.swift       # Voice recognition wrapper
+│   ├── OpenAIService.swift          # API integration (parsing + querying + date extraction)
+│   ├── SpeechRecognizer.swift       # Voice recognition wrapper
+│   └── DataSeeder.swift             # One-time data seeding utility
 │
 └── Utilities/
     ├── PromptTemplates.swift        # OpenAI prompt engineering
@@ -266,12 +345,69 @@ FitnessTracker/
   - "New Conversation" button to clear history
   - Auto-scroll to latest messages
 
-### 🔲 Phase 8: Polish & Edge Cases
+### ✅ Phase 8: Nutrition Tracking
+- **Chunk 8.1**: Nutrition data model (Meal + FoodItem CoreData entities, MealSession + MealFood structs)
+- **Chunk 8.2**: NutritionRepository for meal CRUD operations
+- **Chunk 8.3**: GPT prompts for meal parsing with macro estimation
+- **Chunk 8.4**: LogMealView + MealConfirmationView (parallel to workout flow)
+- **Chunk 8.5**: Meal templates with voice/UI selection
+- **Chunk 8.6**: ReviewNutritionView with chat interface
+
+### ✅ Phase 9: Calendar View & Enhancements
+- **Chunk 9.1**: CalendarView component with month navigation
+- **Chunk 9.2**: Green highlights for dates with logged data
+- **Chunk 9.3**: WorkoutDayListView and MealDayListView for date-specific entries
+- **Chunk 9.4**: FloatingChatButton component (bottom right)
+- **Chunk 9.5**: Workout naming system (GPT-generated descriptive names)
+- **Chunk 9.6**: Date extraction from voice input ("on jan 2nd", "yesterday")
+- **Chunk 9.7**: isTemplate boolean field (replaced name-based template detection)
+- **Chunk 9.8**: Recovery activities (sauna, stretching) and cardio recognized as exercises
+
+### 🔲 Phase 10: Polish & Edge Cases
 - **Chunk 8.1**: Error handling improvements
 - **Chunk 8.2**: Onboarding experience polish
 - **Chunk 8.3**: UI polish + accessibility (VoiceOver, Dark Mode)
 - **Chunk 8.4**: Performance optimization
 - **Chunk 8.5**: Final testing & bug fixes
+
+### ✅ Phase 10 Enhancements (January 2026)
+
+**Edit Workflow Fixes**:
+- Fixed workout/meal editing to update existing entries instead of creating duplicates
+- Repository pattern now checks for existing workout/meal by ID before saving
+- Added `isEditMode` flag to confirmation views to skip template prompts when editing
+- Proper update vs create distinction in `saveWorkout()` and `saveMeal()` methods
+
+**Template System Improvements**:
+- Fixed critical bug where templates loaded via "Use Template" were saved with `isTemplate: true`
+- Template-loaded workouts now correctly marked as regular workouts (`isTemplate: false`)
+- Added template deletion functionality with confirmation dialogs
+- Delete buttons added to both workout and nutrition template cards
+
+**Data Backup & Restore**:
+- New `BackupService` for exporting all data to JSON format
+- Settings screen with export/import functionality using iOS share sheet and file picker
+- Exports include all workouts, meals, and templates with full metadata
+- Import validates and restores data from previously exported backups
+- Critical for preserving data across app reinstalls (especially for free Apple Developer accounts)
+
+**Date Extraction Timezone Fix**:
+- Fixed timezone bug where dates extracted from voice ("January 9th") were off by one day
+- AI returns dates in UTC, now properly converted to local timezone at 8:00 AM
+- Day-of-week context added to AI prompt (e.g., "Today is Sunday") for accurate relative dates
+- Fixes apply to both workout and meal date parsing
+
+**UI/UX Improvements**:
+- Fixed scrolling issue in LogWorkoutView parsed results (wrapped in ScrollView)
+- Fixed calendar week day ForEach duplicate ID warning (S and T appeared twice)
+- Added bottom padding to scrollable content to prevent content hiding behind keyboard
+- Improved visual feedback with consistent use of `.scrollDismissesKeyboard()`
+
+**Known Limitations**:
+- Free Apple Developer accounts: Apps expire every 7 days, requiring reinstall and data restore
+- Paid accounts: No expiration, data persists indefinitely
+- Relative date parsing ("this past Saturday") requires day-of-week context in prompt
+- Batch logging (multiple templates at once) not yet implemented
 
 ---
 
@@ -331,14 +467,32 @@ RootView (checks API key)
 
 **Responsibilities**:
 - Converts between CoreData entities and Swift structs
-- Filters templates (name != nil) vs regular workouts (name == nil)
-- Handles all CoreData save operations
+- Filters templates using `isTemplate == YES` predicate
+- Handles all workout-related CoreData operations
+
+### NutritionRepository
+**Methods**:
+- `saveMeal(_ meal: MealSession) -> Bool`
+- `fetchAllMeals() -> [MealSession]`
+- `fetchMeals(from: Date, to: Date) -> [MealSession]`
+- `deleteMeal(id: UUID) -> Bool`
+- `saveTemplate(name: String, foodItems: [MealFood], mealType: String?) -> Bool`
+- `fetchTemplates() -> [MealSession]`
+- `updateTemplate(id: UUID, name: String, foodItems: [MealFood], mealType: String?) -> Bool`
+
+**Responsibilities**:
+- Converts between CoreData Meal/FoodItem entities and Swift structs
+- Parallel structure to WorkoutRepository for consistency
+- Handles all meal-related CoreData operations
 
 ### OpenAIService
 **Methods**:
 - `parseWorkoutText(_ text: String, previousWorkout: WorkoutSession?, availableTemplates: [WorkoutSession]) async throws -> WorkoutSession`
+- `parseMealText(_ text: String, previousMeal: MealSession?, availableTemplates: [MealSession]) async throws -> MealSession`
 - `queryWorkoutHistory(_ question: String, context: [WorkoutSession]) async throws -> String`
 - `queryWorkoutHistoryWithContext(_ question: String, workouts: [WorkoutSession], conversationContext: ConversationContext) async throws -> String`
+- `queryNutritionHistory(_ question: String, meals: [MealSession]) async throws -> String`
+- `queryNutritionHistoryWithContext(_ question: String, meals: [MealSession], conversationContext: ConversationContext) async throws -> String`
 
 **Configuration**:
 - Model: `gpt-4o-mini`
@@ -347,10 +501,13 @@ RootView (checks API key)
 - Response limit: 500 tokens for chat queries
 
 **Prompt Engineering**:
-- Workout parsing: Converts natural language → JSON
-- Supports "same as last time" by passing previous workout
+- Workout parsing: Natural language → JSON with workout name generation
+- Date extraction: Parses dates from voice ("on jan 2nd", "yesterday") to ISO 8601
+- Recovery/cardio recognition: Treats sauna, stretching, running as valid exercises
+- Nutrition parsing: Estimates all macros (calories, protein, carbs, fat) based on food descriptions
+- Supports "same as last time" by passing previous workout/meal
 - Supports template matching and modifications ("use push day but add 5 pounds")
-- Query answering: Analyzes workout data with conversation context
+- Query answering: Analyzes workout/nutrition data with conversation context
 - Chat-optimized: Concise responses (2-3 paragraphs max) that fit in chat bubbles
 
 ### KeychainManager
@@ -484,28 +641,37 @@ ChildView {
 
 ## Current Development Status
 
-**Last Completed**: Phase 7 - Review Workouts Chat Feature
+**Last Completed**: Phase 10 Enhancements (January 2026)
 
 **Fully Functional**:
-- Complete voice-to-save workout logging
-- Template system with UI and voice selection
-- Template editing and management
-- AI-powered chat for workout history queries
+- Complete voice-to-save workout and nutrition logging
+- AI-generated workout names with inline editing
+- Date extraction from voice input with timezone correction for historical logging
+- Template system for workouts and meals with deletion support
+- Calendar view with green highlights for logged dates
+- Floating chat interface for workout and nutrition history
+- Recovery activities and cardio recognized as exercises
 - Conversation memory and follow-up questions
+- Data backup and restore via JSON export/import
+- Edit existing workouts/meals (updates instead of duplicating)
+- Settings screen with data management
 
 **Production Ready Features**:
 - Voice recording and transcription
-- AI workout parsing with template support
-- Inline editing of all workout fields
-- Template creation, editing, and reuse
-- Chat-based workout history analysis
-- Conversation context for natural follow-ups
+- AI parsing with date/name/macro estimation and day-of-week context
+- Inline editing of all workout/meal fields
+- Template creation, editing, deletion, and reuse
+- Calendar-based navigation and visualization
+- Chat-based history analysis with context
+- Edit/delete past entries from calendar view
+- Data export/import for backup purposes
 
-**Next Up**: Phase 8 - Polish & Edge Cases
+**Remaining Phase 10 Tasks**:
 - Error handling improvements
 - Onboarding experience polish
 - Accessibility support (VoiceOver, Dynamic Type)
 - Performance optimization
+- Batch logging (multiple templates at once)
 - Final testing and bug fixes
 
 ---
@@ -576,10 +742,8 @@ ChildView {
 ## Future Enhancements (Post-MVP)
 
 *Not included in current build plan:*
-- Settings screen (API key management, preferences, data export)
-- Export workout data (CSV/JSON)
-- Bulk edit/delete past workouts
-- Calendar view of workout history
+- Settings screen (API key management, preferences)
+- Data export functionality (CSV/JSON)
 - Charts and visualizations (progress graphs, volume tracking)
 - Apple Health integration
 - Widget support
@@ -587,9 +751,11 @@ ChildView {
 - Workout reminders and scheduling
 - Exercise library with form videos
 - Custom AI prompt editing
+- Cloud sync across devices
+- PostgreSQL backend migration
 
 ---
 
-**Last Updated**: Phase 7 Complete - Chat Feature with Conversation Memory
+**Last Updated**: Phase 10 Enhancements (January 2026) - Edit Workflow, Data Backup, Timezone Fixes
 
-**App Status**: Feature-complete MVP ready for TestFlight beta testing
+**App Status**: Production-ready with workout + nutrition tracking, calendar views, AI chat, data backup/restore, and template management. Key bug fixes applied for editing, date extraction, and timezone handling.

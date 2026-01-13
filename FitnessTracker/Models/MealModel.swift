@@ -43,7 +43,7 @@ struct MealFood: Identifiable, Codable, Equatable {
 }
 
 /// Represents a complete meal session or template
-struct MealSession: Identifiable, Equatable {
+struct MealSession: Identifiable, Codable, Equatable {
     var id: UUID
     var date: Date
     var foodItems: [MealFood]

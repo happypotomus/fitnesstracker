@@ -127,8 +127,9 @@ class OpenAIService {
 
     // MARK: - Nutrition Parsing
 
-    /// Parses natural language meal description into structured MealSession
-    func parseMealText(_ text: String, previousMeal: MealSession? = nil, availableTemplates: [MealSession] = []) async throws -> MealSession {
+    /// Parses natural language meal description into structured MealSession(s)
+    /// Returns array to support bulk logging (can be single meal or multiple meals)
+    func parseMealText(_ text: String, previousMeal: MealSession? = nil, availableTemplates: [MealSession] = []) async throws -> [MealSession] {
         guard let apiKey = apiKey else {
             throw OpenAIError.noAPIKey
         }
@@ -147,7 +148,7 @@ class OpenAIService {
 
         let responseText = try await makeAPIRequest(apiKey: apiKey, body: requestBody)
 
-        // Parse the JSON response into MealSession
+        // Parse the JSON response into MealSession array
         return try parseMealJSON(responseText)
     }
 
@@ -262,6 +263,8 @@ class OpenAIService {
         }
 
         struct WorkoutResponse: Codable {
+            let name: String?
+            let date: String?
             let exercises: [ExerciseResponse]
         }
 
@@ -290,9 +293,52 @@ class OpenAIService {
                 )
             }
 
+            // Parse date from ISO 8601 string if provided, otherwise use current time
+            var workoutDate = Date()
+            if let dateString = response.date {
+                print("🔍 DIAGNOSTIC: AI returned date string: '\(dateString)'")
+
+                // Parse the ISO8601 date
+                let isoFormatter = ISO8601DateFormatter()
+                if let parsedDate = isoFormatter.date(from: dateString) {
+                    // Convert to local timezone at 8:00 AM
+                    // This fixes the timezone bug where "January 9th" in UTC becomes "January 8th" in PST
+                    let calendar = Calendar.current
+                    let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
+
+                    // Create date at 8:00 AM in user's local timezone
+                    var newComponents = DateComponents()
+                    newComponents.year = components.year
+                    newComponents.month = components.month
+                    newComponents.day = components.day
+                    newComponents.hour = 8
+                    newComponents.minute = 0
+                    newComponents.second = 0
+                    newComponents.timeZone = TimeZone.current
+
+                    if let localDate = calendar.date(from: newComponents) {
+                        workoutDate = localDate
+
+                        let formatter = DateFormatter()
+                        formatter.dateStyle = .medium
+                        formatter.timeStyle = .short
+                        print("🔍 DIAGNOSTIC: Parsed to local date: \(formatter.string(from: localDate))")
+                    } else {
+                        workoutDate = parsedDate
+                        print("⚠️ Could not convert to local timezone, using UTC date")
+                    }
+                } else {
+                    print("⚠️ Could not parse date '\(dateString)', using current time")
+                }
+            } else {
+                print("🔍 DIAGNOSTIC: No date in AI response, using current time")
+            }
+
             return WorkoutSession(
-                date: Date(),
-                exercises: exercises
+                date: workoutDate,
+                exercises: exercises,
+                name: response.name,
+                isTemplate: false
             )
         } catch {
             print("❌ JSON parsing error: \(error)")
@@ -301,13 +347,18 @@ class OpenAIService {
         }
     }
 
-    private func parseMealJSON(_ jsonString: String) throws -> MealSession {
+    private func parseMealJSON(_ jsonString: String) throws -> [MealSession] {
         guard let data = jsonString.data(using: .utf8) else {
             throw OpenAIError.jsonParsingError(NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not convert string to data"]))
         }
 
-        struct MealResponse: Codable {
+        struct BulkMealResponse: Codable {
+            let meals: [SingleMealResponse]
+        }
+
+        struct SingleMealResponse: Codable {
             let mealType: String?
+            let date: String?
             let foodItems: [FoodItemResponse]
         }
 
@@ -323,26 +374,57 @@ class OpenAIService {
 
         do {
             let decoder = JSONDecoder()
-            let response = try decoder.decode(MealResponse.self, from: data)
+            let response = try decoder.decode(BulkMealResponse.self, from: data)
 
-            let foodItems = response.foodItems.enumerated().map { index, food in
-                MealFood(
-                    name: food.name,
-                    portionSize: food.portionSize,
-                    calories: food.calories,
-                    protein: food.protein,
-                    carbs: food.carbs,
-                    fat: food.fat,
-                    notes: food.notes,
-                    order: index
+            let isoFormatter = ISO8601DateFormatter()
+
+            return response.meals.map { meal in
+                let foodItems = meal.foodItems.enumerated().map { index, food in
+                    MealFood(
+                        name: food.name,
+                        portionSize: food.portionSize,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbs: food.carbs,
+                        fat: food.fat,
+                        notes: food.notes,
+                        order: index
+                    )
+                }
+
+                // Parse date from ISO 8601 string if provided, otherwise use current time
+                var mealDate = Date()
+                if let dateString = meal.date {
+                    if let parsedDate = isoFormatter.date(from: dateString) {
+                        // Convert to local timezone at 8:00 AM (or appropriate meal time)
+                        let calendar = Calendar.current
+                        let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
+
+                        var newComponents = DateComponents()
+                        newComponents.year = components.year
+                        newComponents.month = components.month
+                        newComponents.day = components.day
+                        newComponents.hour = 8
+                        newComponents.minute = 0
+                        newComponents.second = 0
+                        newComponents.timeZone = TimeZone.current
+
+                        if let localDate = calendar.date(from: newComponents) {
+                            mealDate = localDate
+                        } else {
+                            mealDate = parsedDate
+                        }
+                    } else {
+                        print("⚠️ Could not parse date '\(dateString)', using current time")
+                    }
+                }
+
+                return MealSession(
+                    date: mealDate,
+                    foodItems: foodItems,
+                    mealType: meal.mealType
                 )
             }
-
-            return MealSession(
-                date: Date(),
-                foodItems: foodItems,
-                mealType: response.mealType
-            )
         } catch {
             print("❌ JSON parsing error: \(error)")
             print("📄 JSON string: \(jsonString)")

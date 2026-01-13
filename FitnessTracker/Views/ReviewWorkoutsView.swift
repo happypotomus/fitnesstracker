@@ -96,7 +96,7 @@ struct ReviewWorkoutsView: View {
                 ReviewWorkoutsChatView(viewModel: viewModel)
             }
             .sheet(item: $workoutToEdit) { workout in
-                WorkoutConfirmationView(workout: workout) {
+                WorkoutConfirmationView(workout: workout, isEditMode: true) {
                     workoutToEdit = nil
                     refreshTrigger.toggle()
                     updateCalendarHighlights()

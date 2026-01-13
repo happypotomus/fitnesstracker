@@ -40,27 +40,25 @@ struct WorkoutExercise: Identifiable, Codable, Equatable {
 }
 
 /// Represents a complete workout session or template
-struct WorkoutSession: Identifiable, Equatable {
+struct WorkoutSession: Identifiable, Codable, Equatable {
     var id: UUID
     var date: Date
     var exercises: [WorkoutExercise]
-    var name: String?  // If name is set, this is a template
+    var name: String?  // Descriptive name for the workout (e.g., "Chest & Triceps", "Back Day")
+    var isTemplate: Bool  // True if this is a saved template
 
     init(
         id: UUID = UUID(),
         date: Date = Date(),
         exercises: [WorkoutExercise] = [],
-        name: String? = nil
+        name: String? = nil,
+        isTemplate: Bool = false
     ) {
         self.id = id
         self.date = date
         self.exercises = exercises
         self.name = name
-    }
-
-    /// Returns true if this is a template (has a name)
-    var isTemplate: Bool {
-        return name != nil
+        self.isTemplate = isTemplate
     }
 
     /// Total number of sets across all exercises
@@ -109,12 +107,14 @@ extension WorkoutSession {
     static let sampleWorkout = WorkoutSession(
         date: Date(),
         exercises: [sampleBenchPress, sampleSquats],
-        name: nil
+        name: "Upper Body",
+        isTemplate: false
     )
 
     static let sampleTemplate = WorkoutSession(
         date: Date(),
         exercises: [sampleBenchPress, sampleSquats, sampleDeadlift],
-        name: "Push Day A"
+        name: "Push Day A",
+        isTemplate: true
     )
 }

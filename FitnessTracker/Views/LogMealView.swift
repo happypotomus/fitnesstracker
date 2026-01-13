@@ -13,6 +13,7 @@ struct LogMealView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showConfirmation: Bool = false
+    @State private var showBulkConfirmation: Bool = false
     @State private var showTemplatePicker: Bool = false
     @State private var availableTemplates: [MealSession] = []
 
@@ -38,7 +39,7 @@ struct LogMealView: View {
                     .padding(.top, 40)
 
                     // Use Template Button
-                    if !viewModel.isProcessing && viewModel.parsedMeal == nil && !availableTemplates.isEmpty {
+                    if !viewModel.isProcessing && viewModel.parsedMeals.isEmpty && !availableTemplates.isEmpty {
                         Button(action: {
                             showTemplatePicker = true
                         }) {
@@ -59,7 +60,7 @@ struct LogMealView: View {
                     Spacer()
 
                     // Voice Recording Button
-                    if !viewModel.isProcessing && viewModel.parsedMeal == nil {
+                    if !viewModel.isProcessing && viewModel.parsedMeals.isEmpty {
                         VoiceRecordButton(
                             speechRecognizer: speechRecognizer,
                             onTranscriptionComplete: { transcription in
@@ -122,57 +123,68 @@ struct LogMealView: View {
                         .padding()
                     }
 
-                    // Success State - Show Parsed Meal
-                    if let meal = viewModel.parsedMeal {
+                    // Success State - Show Parsed Meal(s)
+                    if !viewModel.parsedMeals.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 50))
                                 .foregroundColor(.green)
 
-                            Text("Meal Parsed!")
-                                .font(.title2)
-                                .fontWeight(.bold)
+                            if viewModel.parsedMeals.count == 1 {
+                                Text("Meal Parsed!")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
 
-                            if let mealType = meal.mealType {
-                                Text(mealType.capitalized)
+                                if let mealType = viewModel.parsedMeals[0].mealType {
+                                    Text(mealType.capitalized)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Text("\(viewModel.parsedMeals[0].foodItems.count) food item(s) detected")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text("\(viewModel.parsedMeals.count) Meals Parsed!")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+
+                                Text("Bulk logging detected")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
 
-                            Text("\(meal.foodItems.count) food item(s) detected")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-
-                            // Show food items
+                            // Show meals preview
                             ScrollView {
                                 VStack(alignment: .leading, spacing: 12) {
-                                    ForEach(meal.foodItems) { foodItem in
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(foodItem.name)
-                                                .font(.headline)
-
-                                            if let portion = foodItem.portionSize {
-                                                Text(portion)
+                                    ForEach(Array(viewModel.parsedMeals.enumerated()), id: \.element.id) { index, meal in
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            // Meal header
+                                            HStack {
+                                                if let mealType = meal.mealType {
+                                                    Text(mealType.capitalized)
+                                                        .font(.headline)
+                                                } else {
+                                                    Text("Meal \(index + 1)")
+                                                        .font(.headline)
+                                                }
+                                                Spacer()
+                                                Text("\(Int(meal.totalCalories)) cal")
                                                     .font(.subheadline)
                                                     .foregroundColor(.secondary)
                                             }
 
-                                            HStack(spacing: 12) {
-                                                if let cals = foodItem.calories {
-                                                    Text("\(Int(cals)) cal")
-                                                        .font(.caption)
-                                                        .padding(.horizontal, 8)
-                                                        .padding(.vertical, 4)
-                                                        .background(Color.green.opacity(0.1))
-                                                        .cornerRadius(8)
-                                                }
-                                                if let protein = foodItem.protein {
-                                                    Text("\(Int(protein))g protein")
-                                                        .font(.caption)
-                                                        .padding(.horizontal, 8)
-                                                        .padding(.vertical, 4)
-                                                        .background(Color.blue.opacity(0.1))
-                                                        .cornerRadius(8)
+                                            // Food items for this meal
+                                            ForEach(meal.foodItems) { foodItem in
+                                                HStack {
+                                                    Text(foodItem.name)
+                                                        .font(.subheadline)
+                                                    Spacer()
+                                                    if let portion = foodItem.portionSize {
+                                                        Text(portion)
+                                                            .font(.caption)
+                                                            .foregroundColor(.secondary)
+                                                    }
                                                 }
                                             }
                                         }
@@ -183,22 +195,33 @@ struct LogMealView: View {
                                 }
                                 .padding(.horizontal)
                             }
-                            .frame(maxHeight: 200)
+                            .frame(maxHeight: 250)
 
-                            // Totals
-                            VStack(spacing: 4) {
-                                Text("Total: \(Int(meal.totalCalories)) cal")
-                                    .font(.headline)
-                                Text("\(Int(meal.totalProtein))g protein • \(Int(meal.totalCarbs))g carbs • \(Int(meal.totalFat))g fat")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            // Total nutrition across all meals
+                            if viewModel.parsedMeals.count > 1 {
+                                VStack(spacing: 4) {
+                                    let totalCals = viewModel.parsedMeals.reduce(0) { $0 + $1.totalCalories }
+                                    let totalProtein = viewModel.parsedMeals.reduce(0) { $0 + $1.totalProtein }
+                                    let totalCarbs = viewModel.parsedMeals.reduce(0) { $0 + $1.totalCarbs }
+                                    let totalFat = viewModel.parsedMeals.reduce(0) { $0 + $1.totalFat }
+
+                                    Text("Daily Total: \(Int(totalCals)) cal")
+                                        .font(.headline)
+                                    Text("\(Int(totalProtein))g protein • \(Int(totalCarbs))g carbs • \(Int(totalFat))g fat")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding()
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(12)
                             }
-                            .padding()
-                            .background(Color.green.opacity(0.1))
-                            .cornerRadius(12)
 
                             Button(action: {
-                                showConfirmation = true
+                                if viewModel.parsedMeals.count == 1 {
+                                    showConfirmation = true
+                                } else {
+                                    showBulkConfirmation = true
+                                }
                             }) {
                                 Text("Continue")
                                     .font(.headline)
@@ -219,19 +242,24 @@ struct LogMealView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button("Cancel") { dismiss() })
             .sheet(isPresented: $showConfirmation) {
-                if let meal = viewModel.parsedMeal {
-                    MealConfirmationView(meal: meal) {
+                if viewModel.parsedMeals.count == 1 {
+                    MealConfirmationView(meal: viewModel.parsedMeals[0]) {
                         dismiss()
                     }
                 }
             }
+            .sheet(isPresented: $showBulkConfirmation) {
+                BulkMealConfirmationView(meals: viewModel.parsedMeals) {
+                    dismiss()
+                }
+            }
             .sheet(isPresented: $showTemplatePicker) {
                 NutritionTemplatePickerView(onTemplateSelected: { template in
-                    viewModel.parsedMeal = MealSession(
+                    viewModel.parsedMeals = [MealSession(
                         date: Date(),
                         foodItems: template.foodItems,
                         mealType: template.mealType
-                    )
+                    )]
                     showTemplatePicker = false
                 })
             }

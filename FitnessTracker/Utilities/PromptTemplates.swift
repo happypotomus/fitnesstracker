@@ -19,6 +19,8 @@ struct PromptTemplates {
 
         Expected JSON format:
         {
+          "name": "Descriptive Workout Name",
+          "date": "2026-01-02T08:00:00Z",
           "exercises": [
             {
               "name": "Exercise Name",
@@ -36,10 +38,16 @@ struct PromptTemplates {
         2. If RPE is not mentioned, omit it or set to null
         3. If weight is not mentioned, assume 0.0 (bodyweight)
         4. Standardize exercise names (e.g., "benching" → "Bench Press", "pullups" → "Pull-ups")
-        5. If the user says "same as last time", use the previous workout data provided below
-        6. Infer reasonable values when data is incomplete
-        7. For notes, capture any relevant comments about form, difficulty, or how it felt
-        8. Return ONLY valid JSON, no additional text or explanation
+        5. IMPORTANT: Recovery activities like "sauna", "stretching", "foam rolling", "ice bath" are VALID exercises. Include them with sets=1, reps=1, weight=0
+        6. Cardio activities like "running", "biking", "swimming" are VALID exercises. Use reps to represent duration in minutes
+        7. If the user says "same as last time", use the previous workout data provided below
+        8. Infer reasonable values when data is incomplete
+        9. For notes, capture any relevant comments about form, difficulty, or how it felt
+        10. IMPORTANT: Generate a short, descriptive "name" for the workout based on the exercises (e.g., "Chest & Triceps", "Back Day", "Upper Body", "Leg Day", "Full Body", "Push Workout", "Recovery Session", "Cardio")
+        11. If using a template, the name should match the template name
+        12. IMPORTANT: Extract the workout date if mentioned (e.g., "on jan 2nd", "yesterday", "last monday", "this past saturday"). Return in ISO 8601 format. If no date is mentioned, set to null (current time will be used)
+        13. Current date context: Today is \(Date().formatted(.iso8601)), which is a \(Date().formatted(.dateTime.weekday(.wide))). Use this to calculate relative dates like "yesterday", "last week", or "this past saturday"
+        14. Return ONLY valid JSON, no additional text or explanation
 
         """
 
@@ -231,20 +239,46 @@ struct PromptTemplates {
         var prompt = """
         You are a nutrition parser. Convert the user's natural language meal description into structured JSON with estimated nutrition data.
 
-        The user will describe their meal using voice, so the text may be informal and include filler words.
+        The user will describe their meal(s) using voice, so the text may be informal and include filler words.
 
-        Expected JSON format:
+        Expected JSON format for SINGLE meal:
         {
-          "mealType": "breakfast|lunch|dinner|snack",
-          "foodItems": [
+          "meals": [
             {
-              "name": "Food Name",
-              "portionSize": "2 eggs",
-              "calories": 140,
-              "protein": 12,
-              "carbs": 2,
-              "fat": 10,
-              "notes": "optional notes"
+              "mealType": "breakfast|lunch|dinner|snack",
+              "date": "2026-01-05T08:00:00Z",
+              "foodItems": [
+                {
+                  "name": "Food Name",
+                  "portionSize": "2 eggs",
+                  "calories": 140,
+                  "protein": 12,
+                  "carbs": 2,
+                  "fat": 10,
+                  "notes": "optional notes"
+                }
+              ]
+            }
+          ]
+        }
+
+        Expected JSON format for MULTIPLE meals (bulk logging):
+        {
+          "meals": [
+            {
+              "mealType": "breakfast",
+              "date": "2026-01-05T08:00:00Z",
+              "foodItems": [...]
+            },
+            {
+              "mealType": "lunch",
+              "date": "2026-01-05T12:00:00Z",
+              "foodItems": [...]
+            },
+            {
+              "mealType": "dinner",
+              "date": "2026-01-05T18:00:00Z",
+              "foodItems": [...]
             }
           ]
         }
@@ -259,7 +293,15 @@ struct PromptTemplates {
         7. Be reasonable with estimates - use USDA nutrition data as reference
         8. If the user says "same as last time", use the previous meal data provided below
         9. For notes, capture cooking method, condiments, or other relevant details
-        10. Return ONLY valid JSON, no additional text or explanation
+        10. CRITICAL: Detect if user is describing MULTIPLE meals (e.g., "breakfast was X, lunch was Y, dinner was Z")
+        11. For multiple meals, create separate meal objects with appropriate times:
+            - breakfast: 08:00 (8am)
+            - lunch: 12:00 (12pm)
+            - dinner: 18:00 (6pm)
+            - snack: 15:00 (3pm)
+        12. Extract date if mentioned (e.g., "on jan 2nd", "yesterday", "this past saturday"). Return in ISO 8601 format. If no date mentioned, set to null.
+        13. Current date context: Today is \(Date().formatted(.iso8601)), which is a \(Date().formatted(.dateTime.weekday(.wide))). Use this to calculate relative dates like "yesterday", "last week", or "this past saturday"
+        14. Return ONLY valid JSON with "meals" array (even if just one meal), no additional text or explanation
 
         """
 

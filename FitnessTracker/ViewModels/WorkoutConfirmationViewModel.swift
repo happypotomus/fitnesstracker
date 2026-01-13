@@ -104,6 +104,8 @@ class WorkoutConfirmationViewModel: ObservableObject {
             return false
         }
 
+        print("🔍 DIAGNOSTIC: Saving workout - ID: \(workout.id), isTemplate: \(workout.isTemplate)")
+
         isSaving = true
 
         let success = repository.saveWorkout(workout)
@@ -122,6 +124,8 @@ class WorkoutConfirmationViewModel: ObservableObject {
     // MARK: - Save as Template
 
     func saveAsTemplate(name: String) -> Bool {
+        print("🔍 DIAGNOSTIC: saveAsTemplate called with name: '\(name)'")
+
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {
@@ -130,6 +134,7 @@ class WorkoutConfirmationViewModel: ObservableObject {
             return false
         }
 
+        print("🔍 DIAGNOSTIC: Saving template '\(trimmedName)' with \(workout.exercises.count) exercises")
         let success = repository.saveTemplate(name: trimmedName, exercises: workout.exercises)
 
         if success {

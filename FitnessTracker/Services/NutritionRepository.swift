@@ -17,10 +17,97 @@ class NutritionRepository {
 
     // MARK: - Save Meal
 
-    /// Saves a meal session to CoreData
+    /// Saves a meal session to CoreData (creates new or updates existing)
     func saveMeal(_ meal: MealSession) -> Bool {
         let context = persistenceController.container.viewContext
 
+        // Check if meal already exists
+        let request: NSFetchRequest<Meal> = Meal.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", meal.id as CVarArg)
+
+        do {
+            let existingMeals = try context.fetch(request)
+
+            if let existingMeal = existingMeals.first {
+                // Update existing meal
+                print("🔄 Updating existing meal: \(meal.id)")
+                return updateExistingMeal(existingMeal, with: meal, in: context)
+            } else {
+                // Create new meal
+                print("➕ Creating new meal: \(meal.id)")
+                return createNewMeal(meal, in: context)
+            }
+        } catch {
+            print("❌ Failed to check for existing meal: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Update Meal
+
+    /// Updates an existing meal in CoreData
+    func updateMeal(_ meal: MealSession) -> Bool {
+        let context = persistenceController.container.viewContext
+        let request: NSFetchRequest<Meal> = Meal.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", meal.id as CVarArg)
+
+        do {
+            let meals = try context.fetch(request)
+            guard let existingMeal = meals.first else {
+                print("⚠️ Meal not found for update: \(meal.id)")
+                return false
+            }
+
+            return updateExistingMeal(existingMeal, with: meal, in: context)
+        } catch {
+            print("❌ Failed to update meal: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Helper: Update Existing Meal
+
+    private func updateExistingMeal(_ entity: Meal, with meal: MealSession, in context: NSManagedObjectContext) -> Bool {
+        // Update meal properties
+        entity.date = meal.date
+        entity.name = meal.name
+        entity.mealType = meal.mealType
+
+        // Delete all existing food items
+        if let existingFoodItems = entity.foodItems as? Set<FoodItem> {
+            for foodItem in existingFoodItems {
+                context.delete(foodItem)
+            }
+        }
+
+        // Create new food item entities
+        for foodItem in meal.foodItems {
+            let foodItemEntity = FoodItem(context: context)
+            foodItemEntity.id = foodItem.id
+            foodItemEntity.name = foodItem.name
+            foodItemEntity.portionSize = foodItem.portionSize
+            foodItemEntity.calories = foodItem.calories ?? 0
+            foodItemEntity.protein = foodItem.protein ?? 0
+            foodItemEntity.carbs = foodItem.carbs ?? 0
+            foodItemEntity.fat = foodItem.fat ?? 0
+            foodItemEntity.notes = foodItem.notes
+            foodItemEntity.order = Int16(foodItem.order)
+            foodItemEntity.meal = entity
+        }
+
+        do {
+            try context.save()
+            print("✅ Meal updated successfully: \(meal.foodItems.count) food items")
+            return true
+        } catch {
+            print("❌ Failed to save updated meal: \(error)")
+            return false
+        }
+    }
+
+    // MARK: - Helper: Create New Meal
+
+    private func createNewMeal(_ meal: MealSession, in context: NSManagedObjectContext) -> Bool {
         let mealEntity = Meal(context: context)
         mealEntity.id = meal.id
         mealEntity.date = meal.date
@@ -44,10 +131,10 @@ class NutritionRepository {
 
         do {
             try context.save()
-            print("✅ Meal saved successfully: \(meal.foodItems.count) food items")
+            print("✅ Meal created successfully: \(meal.foodItems.count) food items")
             return true
         } catch {
-            print("❌ Failed to save meal: \(error)")
+            print("❌ Failed to create meal: \(error)")
             return false
         }
     }

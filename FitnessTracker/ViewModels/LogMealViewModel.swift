@@ -13,7 +13,7 @@ import Combine
 class LogMealViewModel: ObservableObject {
     @Published var isProcessing: Bool = false
     @Published var errorMessage: String = ""
-    @Published var parsedMeal: MealSession?
+    @Published var parsedMeals: [MealSession] = []
 
     private let openAIService = OpenAIService()
     private let repository = NutritionRepository()
@@ -41,15 +41,15 @@ class LogMealViewModel: ObservableObject {
             let previousMeals = repository.fetchAllMeals()
             let previousMeal = previousMeals.first
 
-            // Parse meal using OpenAI (now with template context)
-            let meal = try await openAIService.parseMealText(
+            // Parse meal(s) using OpenAI (supports bulk logging)
+            let meals = try await openAIService.parseMealText(
                 transcription,
                 previousMeal: previousMeal,
                 availableTemplates: availableTemplates
             )
 
-            print("✅ Meal parsed successfully: \(meal.foodItems.count) food items")
-            parsedMeal = meal
+            print("✅ Meal(s) parsed successfully: \(meals.count) meal(s)")
+            parsedMeals = meals
             isProcessing = false
 
         } catch let error as OpenAIError {
@@ -67,6 +67,6 @@ class LogMealViewModel: ObservableObject {
 
     func retry() {
         errorMessage = ""
-        parsedMeal = nil
+        parsedMeals = []
     }
 }

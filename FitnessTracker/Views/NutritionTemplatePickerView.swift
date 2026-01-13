@@ -11,10 +11,14 @@ struct NutritionTemplatePickerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
     @State private var templateToEdit: MealSession?
+    @State private var templateToDelete: MealSession?
+    @State private var showDeleteConfirmation = false
     @State private var templates: [MealSession] = []
 
     let onTemplateSelected: (MealSession) -> Void
     var onTemplateEdited: (() -> Void)?
+
+    private let repository = NutritionRepository()
 
     var filteredTemplates: [MealSession] {
         if searchText.isEmpty {
@@ -74,6 +78,10 @@ struct NutritionTemplatePickerView: View {
                                     template: template,
                                     onEdit: {
                                         templateToEdit = template
+                                    },
+                                    onDelete: {
+                                        templateToDelete = template
+                                        showDeleteConfirmation = true
                                     }
                                 )
                                 .onTapGesture {
@@ -101,6 +109,16 @@ struct NutritionTemplatePickerView: View {
                     onTemplateEdited?()
                 }
             }
+            .alert("Delete Template?", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    if let template = templateToDelete {
+                        deleteTemplate(template)
+                    }
+                }
+            } message: {
+                Text("This template will be permanently deleted. This action cannot be undone.")
+            }
         }
         .onAppear {
             loadTemplates()
@@ -108,8 +126,19 @@ struct NutritionTemplatePickerView: View {
     }
 
     private func loadTemplates() {
-        let repository = NutritionRepository()
         templates = repository.fetchTemplates()
+    }
+
+    // MARK: - Delete Template
+
+    private func deleteTemplate(_ template: MealSession) {
+        if repository.deleteMeal(id: template.id) {
+            print("✅ Meal template deleted successfully")
+            loadTemplates()
+            onTemplateEdited?()
+        } else {
+            print("❌ Failed to delete meal template")
+        }
     }
 }
 
@@ -118,6 +147,7 @@ struct NutritionTemplatePickerView: View {
 struct NutritionTemplateCard: View {
     let template: MealSession
     var onEdit: () -> Void
+    var onDelete: () -> Void
 
     var body: some View {
         HStack(alignment: .top) {
@@ -156,6 +186,13 @@ struct NutritionTemplateCard: View {
                 Image(systemName: "pencil.circle.fill")
                     .font(.title2)
                     .foregroundColor(.green)
+            }
+            .buttonStyle(BorderlessButtonStyle())
+
+            Button(action: onDelete) {
+                Image(systemName: "trash.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.red)
             }
             .buttonStyle(BorderlessButtonStyle())
         }
