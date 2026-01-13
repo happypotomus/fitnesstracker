@@ -13,12 +13,16 @@ struct TemplatePickerView: View {
     @State private var templateToEdit: WorkoutSession?
     @State private var templateToDelete: WorkoutSession?
     @State private var showDeleteConfirmation = false
+    @State private var isMultiSelectMode = false
+    @State private var selectedTemplateIDs: Set<UUID> = []
 
     let templates: [WorkoutSession]
     let onTemplateSelected: (WorkoutSession) -> Void
+    var onMultipleTemplatesSelected: (([WorkoutSession]) -> Void)?
     var onTemplateEdited: (() -> Void)?
 
     private let repository = WorkoutRepository()
+    private let maxMultiSelect = 5 // Limit for batch selection
 
     var filteredTemplates: [WorkoutSession] {
         if searchText.isEmpty {
@@ -36,6 +40,15 @@ struct TemplatePickerView: View {
                     // Empty state
                     EmptyTemplateView()
                 } else {
+                    // Mode Toggle
+                    Picker("Selection Mode", selection: $isMultiSelectMode) {
+                        Text("Single").tag(false)
+                        Text("Multiple").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+
                     // Search bar
                     HStack {
                         Image(systemName: "magnifyingglass")
@@ -62,6 +75,8 @@ struct TemplatePickerView: View {
                             ForEach(filteredTemplates) { template in
                                 TemplateCard(
                                     template: template,
+                                    isSelected: selectedTemplateIDs.contains(template.id),
+                                    showCheckbox: isMultiSelectMode,
                                     onEdit: {
                                         templateToEdit = template
                                     },
@@ -71,12 +86,29 @@ struct TemplatePickerView: View {
                                     }
                                 )
                                 .onTapGesture {
-                                    onTemplateSelected(template)
-                                    dismiss()
+                                    handleTemplateTap(template)
                                 }
                             }
                         }
                         .padding()
+                    }
+
+                    // Select Button (for multi-select mode)
+                    if isMultiSelectMode && !selectedTemplateIDs.isEmpty {
+                        Button(action: handleMultipleSelection) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Select \(selectedTemplateIDs.count) Template\(selectedTemplateIDs.count == 1 ? "" : "s")")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom)
                     }
                 }
             }
@@ -108,6 +140,31 @@ struct TemplatePickerView: View {
         }
     }
 
+    // MARK: - Template Selection Handlers
+
+    private func handleTemplateTap(_ template: WorkoutSession) {
+        if isMultiSelectMode {
+            // Toggle selection
+            if selectedTemplateIDs.contains(template.id) {
+                selectedTemplateIDs.remove(template.id)
+            } else {
+                if selectedTemplateIDs.count < maxMultiSelect {
+                    selectedTemplateIDs.insert(template.id)
+                }
+            }
+        } else {
+            // Single select mode
+            onTemplateSelected(template)
+            dismiss()
+        }
+    }
+
+    private func handleMultipleSelection() {
+        let selectedTemplates = templates.filter { selectedTemplateIDs.contains($0.id) }
+        onMultipleTemplatesSelected?(selectedTemplates)
+        dismiss()
+    }
+
     // MARK: - Delete Template
 
     private func deleteTemplate(_ template: WorkoutSession) {
@@ -124,11 +181,20 @@ struct TemplatePickerView: View {
 
 struct TemplateCard: View {
     let template: WorkoutSession
+    var isSelected: Bool = false
+    var showCheckbox: Bool = false
     var onEdit: () -> Void
     var onDelete: () -> Void
 
     var body: some View {
         HStack {
+            // Checkbox (multi-select mode only)
+            if showCheckbox {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(isSelected ? .blue : .secondary)
+            }
+
             VStack(alignment: .leading, spacing: 6) {
                 Text(template.name ?? "Unnamed")
                     .font(.headline)
@@ -146,28 +212,34 @@ struct TemplateCard: View {
 
             Spacer()
 
-            // Edit button
-            Button(action: onEdit) {
-                Image(systemName: "pencil.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.blue)
-            }
-            .buttonStyle(.plain)
+            // Edit button (hidden in multi-select mode)
+            if !showCheckbox {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(.plain)
 
-            // Delete button
-            Button(action: onDelete) {
-                Image(systemName: "trash.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.red)
-            }
-            .buttonStyle(.plain)
+                // Delete button
+                Button(action: onDelete) {
+                    Image(systemName: "trash.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.red)
+                }
+                .buttonStyle(.plain)
 
-            Image(systemName: "chevron.right")
-                .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+            }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+        )
     }
 
     private var exercisePreview: String {

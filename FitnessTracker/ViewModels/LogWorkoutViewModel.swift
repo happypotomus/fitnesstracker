@@ -14,10 +14,16 @@ class LogWorkoutViewModel: ObservableObject {
     @Published var isProcessing: Bool = false
     @Published var errorMessage: String = ""
     @Published var parsedWorkout: WorkoutSession?
+    @Published var parsedWorkouts: [WorkoutSession] = [] // For batch logging
 
     private let openAIService = OpenAIService()
     private let repository = WorkoutRepository()
     private var availableTemplates: [WorkoutSession] = []
+
+    // Computed property to determine if we're in batch mode
+    var isBatchMode: Bool {
+        return parsedWorkouts.count > 1
+    }
 
     // MARK: - Process Transcription
 
@@ -41,15 +47,21 @@ class LogWorkoutViewModel: ObservableObject {
             let previousWorkouts = repository.fetchAllWorkouts()
             let previousWorkout = previousWorkouts.first
 
-            // Parse workout using OpenAI (now with template context)
-            let workout = try await openAIService.parseWorkoutText(
+            // Parse workout using OpenAI batch method (supports multiple workouts)
+            let workouts = try await openAIService.parseWorkoutTextBatch(
                 transcription,
                 previousWorkout: previousWorkout,
                 availableTemplates: availableTemplates
             )
 
-            print("✅ Workout parsed successfully: \(workout.exercises.count) exercises")
-            parsedWorkout = workout
+            print("✅ Parsed \(workouts.count) workout(s) successfully")
+            parsedWorkouts = workouts
+
+            // For backward compatibility, also set single workout
+            if let first = workouts.first {
+                parsedWorkout = first
+            }
+
             isProcessing = false
 
         } catch let error as OpenAIError {
@@ -68,5 +80,6 @@ class LogWorkoutViewModel: ObservableObject {
     func retry() {
         errorMessage = ""
         parsedWorkout = nil
+        parsedWorkouts = []
     }
 }

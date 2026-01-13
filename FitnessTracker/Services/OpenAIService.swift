@@ -50,8 +50,8 @@ class OpenAIService {
 
     // MARK: - Workout Parsing
 
-    /// Parses natural language workout description into structured WorkoutSession
-    func parseWorkoutText(_ text: String, previousWorkout: WorkoutSession? = nil, availableTemplates: [WorkoutSession] = []) async throws -> WorkoutSession {
+    /// Parses natural language workout description into array of WorkoutSessions (supports batch logging)
+    func parseWorkoutTextBatch(_ text: String, previousWorkout: WorkoutSession? = nil, availableTemplates: [WorkoutSession] = []) async throws -> [WorkoutSession] {
         guard let apiKey = apiKey else {
             throw OpenAIError.noAPIKey
         }
@@ -70,8 +70,20 @@ class OpenAIService {
 
         let responseText = try await makeAPIRequest(apiKey: apiKey, body: requestBody)
 
-        // Parse the JSON response into WorkoutSession
-        return try parseWorkoutJSON(responseText)
+        // Parse the JSON response into array of WorkoutSessions
+        return try parseWorkoutJSONBatch(responseText)
+    }
+
+    /// Parses natural language workout description into structured WorkoutSession (legacy method for single workout)
+    func parseWorkoutText(_ text: String, previousWorkout: WorkoutSession? = nil, availableTemplates: [WorkoutSession] = []) async throws -> WorkoutSession {
+        // Use the batch method and return the first workout
+        let workouts = try await parseWorkoutTextBatch(text, previousWorkout: previousWorkout, availableTemplates: availableTemplates)
+
+        guard let firstWorkout = workouts.first else {
+            throw OpenAIError.jsonParsingError(NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No workouts returned from API"]))
+        }
+
+        return firstWorkout
     }
 
     // MARK: - Workout History Query
@@ -257,12 +269,16 @@ class OpenAIService {
         return content
     }
 
-    private func parseWorkoutJSON(_ jsonString: String) throws -> WorkoutSession {
+    private func parseWorkoutJSONBatch(_ jsonString: String) throws -> [WorkoutSession] {
         guard let data = jsonString.data(using: .utf8) else {
             throw OpenAIError.jsonParsingError(NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not convert string to data"]))
         }
 
-        struct WorkoutResponse: Codable {
+        struct BatchWorkoutResponse: Codable {
+            let workouts: [SingleWorkoutResponse]
+        }
+
+        struct SingleWorkoutResponse: Codable {
             let name: String?
             let date: String?
             let exercises: [ExerciseResponse]
@@ -279,72 +295,77 @@ class OpenAIService {
 
         do {
             let decoder = JSONDecoder()
-            let response = try decoder.decode(WorkoutResponse.self, from: data)
+            let response = try decoder.decode(BatchWorkoutResponse.self, from: data)
 
-            let exercises = response.exercises.enumerated().map { index, ex in
-                WorkoutExercise(
-                    name: ex.name,
-                    sets: ex.sets,
-                    reps: ex.reps,
-                    weight: ex.weight ?? 0.0,
-                    rpe: ex.rpe ?? 0,
-                    notes: ex.notes,
-                    order: index
-                )
-            }
+            let isoFormatter = ISO8601DateFormatter()
 
-            // Parse date from ISO 8601 string if provided, otherwise use current time
-            var workoutDate = Date()
-            if let dateString = response.date {
-                print("🔍 DIAGNOSTIC: AI returned date string: '\(dateString)'")
+            return response.workouts.map { workout in
+                let exercises = workout.exercises.enumerated().map { index, ex in
+                    WorkoutExercise(
+                        name: ex.name,
+                        sets: ex.sets,
+                        reps: ex.reps,
+                        weight: ex.weight ?? 0.0,
+                        rpe: ex.rpe ?? 0,
+                        notes: ex.notes,
+                        order: index
+                    )
+                }
 
-                // Parse the ISO8601 date
-                let isoFormatter = ISO8601DateFormatter()
-                if let parsedDate = isoFormatter.date(from: dateString) {
-                    // Convert to local timezone at 8:00 AM
-                    // This fixes the timezone bug where "January 9th" in UTC becomes "January 8th" in PST
-                    let calendar = Calendar.current
-                    let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
+                // Parse date from ISO 8601 string if provided, otherwise use current time
+                var workoutDate = Date()
+                if let dateString = workout.date {
+                    print("🔍 DIAGNOSTIC: AI returned date string: '\(dateString)'")
 
-                    // Create date at 8:00 AM in user's local timezone
-                    var newComponents = DateComponents()
-                    newComponents.year = components.year
-                    newComponents.month = components.month
-                    newComponents.day = components.day
-                    newComponents.hour = 8
-                    newComponents.minute = 0
-                    newComponents.second = 0
-                    newComponents.timeZone = TimeZone.current
+                    if let parsedDate = isoFormatter.date(from: dateString) {
+                        // Convert to local timezone at 8:00 AM
+                        let calendar = Calendar.current
+                        let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
 
-                    if let localDate = calendar.date(from: newComponents) {
-                        workoutDate = localDate
+                        var newComponents = DateComponents()
+                        newComponents.year = components.year
+                        newComponents.month = components.month
+                        newComponents.day = components.day
+                        newComponents.hour = 8
+                        newComponents.minute = 0
+                        newComponents.second = 0
+                        newComponents.timeZone = TimeZone.current
 
-                        let formatter = DateFormatter()
-                        formatter.dateStyle = .medium
-                        formatter.timeStyle = .short
-                        print("🔍 DIAGNOSTIC: Parsed to local date: \(formatter.string(from: localDate))")
+                        if let localDate = calendar.date(from: newComponents) {
+                            workoutDate = localDate
+                        } else {
+                            workoutDate = parsedDate
+                        }
                     } else {
-                        workoutDate = parsedDate
-                        print("⚠️ Could not convert to local timezone, using UTC date")
+                        print("⚠️ Could not parse date '\(dateString)', using current time")
                     }
                 } else {
-                    print("⚠️ Could not parse date '\(dateString)', using current time")
+                    print("🔍 DIAGNOSTIC: No date in AI response, using current time")
                 }
-            } else {
-                print("🔍 DIAGNOSTIC: No date in AI response, using current time")
-            }
 
-            return WorkoutSession(
-                date: workoutDate,
-                exercises: exercises,
-                name: response.name,
-                isTemplate: false
-            )
+                return WorkoutSession(
+                    date: workoutDate,
+                    exercises: exercises,
+                    name: workout.name,
+                    isTemplate: false
+                )
+            }
         } catch {
             print("❌ JSON parsing error: \(error)")
             print("📄 JSON string: \(jsonString)")
             throw OpenAIError.jsonParsingError(error)
         }
+    }
+
+    private func parseWorkoutJSON(_ jsonString: String) throws -> WorkoutSession {
+        // Legacy method - parse using batch method and return first workout
+        let workouts = try parseWorkoutJSONBatch(jsonString)
+
+        guard let firstWorkout = workouts.first else {
+            throw OpenAIError.jsonParsingError(NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No workouts in response"]))
+        }
+
+        return firstWorkout
     }
 
     private func parseMealJSON(_ jsonString: String) throws -> [MealSession] {

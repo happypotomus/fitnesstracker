@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		5A00B0A92F15E41600E6E377 /* BackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00B0A82F15E41600E6E377 /* BackupService.swift */; };
 		5A00B0AB2F15E4A700E6E377 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00B0AA2F15E4A700E6E377 /* SettingsView.swift */; };
+		5A00B0AD2F16348000E6E377 /* BatchWorkoutConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00B0AC2F16348000E6E377 /* BatchWorkoutConfirmationViewModel.swift */; };
+		5A00B0AF2F16348D00E6E377 /* BatchWorkoutConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00B0AE2F16348D00E6E377 /* BatchWorkoutConfirmationView.swift */; };
 		5A4CF93C2F0B60B60023FB45 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF9392F0B60B60023FB45 /* ContentView.swift */; };
 		5A4CF93D2F0B60B60023FB45 /* FitnessTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4CF93A2F0B60B60023FB45 /* FitnessTrackerApp.swift */; };
 		5A4CF93E2F0B60B60023FB45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A4CF9382F0B60B60023FB45 /* Assets.xcassets */; };
@@ -66,6 +68,8 @@
 /* Begin PBXFileReference section */
 		5A00B0A82F15E41600E6E377 /* BackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupService.swift; sourceTree = "<group>"; };
 		5A00B0AA2F15E4A700E6E377 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		5A00B0AC2F16348000E6E377 /* BatchWorkoutConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchWorkoutConfirmationViewModel.swift; sourceTree = "<group>"; };
+		5A00B0AE2F16348D00E6E377 /* BatchWorkoutConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchWorkoutConfirmationView.swift; sourceTree = "<group>"; };
 		5A4CF92A2F0B604E0023FB45 /* FitnessTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitnessTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A4CF9382F0B60B60023FB45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5A4CF9392F0B60B60023FB45 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -178,6 +182,7 @@
 		5A4CF9402F0B61830023FB45 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5A00B0AE2F16348D00E6E377 /* BatchWorkoutConfirmationView.swift */,
 				5A00B0AA2F15E4A700E6E377 /* SettingsView.swift */,
 				5A4CF9A72F0CB7CB0023FB45 /* BulkMealConfirmationView.swift */,
 				5A4CF9A12F0CA6FF0023FB45 /* FloatingChatButton.swift */,
@@ -211,6 +216,7 @@
 		5A4CF9412F0B61890023FB45 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				5A00B0AC2F16348000E6E377 /* BatchWorkoutConfirmationViewModel.swift */,
 				5A4CF9A52F0CB7AC0023FB45 /* BulkMealConfirmationViewModel.swift */,
 				5A4CF9992F0CA6790023FB45 /* CalendarViewModel.swift */,
 				5A4CF9872F0CA1E10023FB45 /* LogMealViewModel.swift */,
@@ -343,6 +349,8 @@
 				5A4CF98D2F0CA1E10023FB45 /* NutritionTemplateEditViewModel.swift in Sources */,
 				5A4CF9A22F0CA6FF0023FB45 /* FloatingChatButton.swift in Sources */,
 				5A4CF9A42F0CAB450023FB45 /* DataSeeder.swift in Sources */,
+				5A00B0AF2F16348D00E6E377 /* BatchWorkoutConfirmationView.swift in Sources */,
+				5A00B0AD2F16348000E6E377 /* BatchWorkoutConfirmationViewModel.swift in Sources */,
 				5A4CF98E2F0CA1E10023FB45 /* LogMealViewModel.swift in Sources */,
 				5A4CF9542F0B6CBC0023FB45 /* APIKeyInputView.swift in Sources */,
 				5A4CF9602F0C70720023FB45 /* LogWorkoutView.swift in Sources */,

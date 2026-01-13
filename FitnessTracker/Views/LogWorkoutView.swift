@@ -13,6 +13,7 @@ struct LogWorkoutView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showConfirmation: Bool = false
+    @State private var showBatchConfirmation: Bool = false
     @State private var showTemplatePicker: Bool = false
     @State private var availableTemplates: [WorkoutSession] = []
 
@@ -172,7 +173,11 @@ struct LogWorkoutView: View {
 
                                 // Continue to Confirmation Button
                                 Button(action: {
-                                    showConfirmation = true
+                                    if viewModel.isBatchMode {
+                                        showBatchConfirmation = true
+                                    } else {
+                                        showConfirmation = true
+                                    }
                                 }) {
                                     HStack {
                                         Text("Continue")
@@ -221,11 +226,20 @@ struct LogWorkoutView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showBatchConfirmation) {
+                BatchWorkoutConfirmationView(workouts: viewModel.parsedWorkouts) {
+                    // When workouts are saved, dismiss this view too
+                    dismiss()
+                }
+            }
             .sheet(isPresented: $showTemplatePicker) {
                 TemplatePickerView(
                     templates: availableTemplates,
                     onTemplateSelected: { selectedTemplate in
                         loadTemplate(selectedTemplate)
+                    },
+                    onMultipleTemplatesSelected: { selectedTemplates in
+                        loadMultipleTemplates(selectedTemplates)
                     },
                     onTemplateEdited: {
                         // Refresh templates after editing
@@ -252,6 +266,31 @@ struct LogWorkoutView: View {
 
         // Set parsed workout to show confirmation screen
         viewModel.parsedWorkout = workout
+    }
+
+    // MARK: - Load Multiple Templates
+
+    private func loadMultipleTemplates(_ templates: [WorkoutSession]) {
+        // Create new workouts from templates with today's date
+        let workouts = templates.map { template -> WorkoutSession in
+            var workout = template
+            workout.id = UUID() // New ID
+            workout.date = Date() // Today's date
+            workout.isTemplate = false // Mark as regular workout
+
+            return workout
+        }
+
+        // Set parsed workouts to show batch confirmation screen
+        viewModel.parsedWorkouts = workouts
+
+        // Also set first workout for backward compatibility
+        if let first = workouts.first {
+            viewModel.parsedWorkout = first
+        }
+
+        // Show batch confirmation
+        showBatchConfirmation = true
     }
 }
 

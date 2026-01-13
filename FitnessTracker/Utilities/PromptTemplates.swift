@@ -17,18 +17,38 @@ struct PromptTemplates {
 
         The user will describe their workout using voice, so the text may be informal and include filler words.
 
-        Expected JSON format:
+        Expected JSON format for SINGLE workout:
         {
-          "name": "Descriptive Workout Name",
-          "date": "2026-01-02T08:00:00Z",
-          "exercises": [
+          "workouts": [
             {
-              "name": "Exercise Name",
-              "sets": 3,
-              "reps": 10,
-              "weight": 185.0,
-              "rpe": 7,
-              "notes": "optional notes"
+              "name": "Descriptive Workout Name",
+              "date": "2026-01-02T08:00:00Z",
+              "exercises": [
+                {
+                  "name": "Exercise Name",
+                  "sets": 3,
+                  "reps": 10,
+                  "weight": 185.0,
+                  "rpe": 7,
+                  "notes": "optional notes"
+                }
+              ]
+            }
+          ]
+        }
+
+        Expected JSON format for MULTIPLE workouts (when user mentions multiple templates or workout types):
+        {
+          "workouts": [
+            {
+              "name": "Push Day",
+              "date": "2026-01-02T08:00:00Z",
+              "exercises": [...]
+            },
+            {
+              "name": "Cardio",
+              "date": "2026-01-02T08:00:00Z",
+              "exercises": [...]
             }
           ]
         }
@@ -43,11 +63,13 @@ struct PromptTemplates {
         7. If the user says "same as last time", use the previous workout data provided below
         8. Infer reasonable values when data is incomplete
         9. For notes, capture any relevant comments about form, difficulty, or how it felt
-        10. IMPORTANT: Generate a short, descriptive "name" for the workout based on the exercises (e.g., "Chest & Triceps", "Back Day", "Upper Body", "Leg Day", "Full Body", "Push Workout", "Recovery Session", "Cardio")
+        10. IMPORTANT: Generate a short, descriptive "name" for each workout based on the exercises (e.g., "Chest & Triceps", "Back Day", "Upper Body", "Leg Day", "Full Body", "Push Workout", "Recovery Session", "Cardio")
         11. If using a template, the name should match the template name
         12. IMPORTANT: Extract the workout date if mentioned (e.g., "on jan 2nd", "yesterday", "last monday", "this past saturday"). Return in ISO 8601 format. If no date is mentioned, set to null (current time will be used)
         13. Current date context: Today is \(Date().formatted(.iso8601)), which is a \(Date().formatted(.dateTime.weekday(.wide))). Use this to calculate relative dates like "yesterday", "last week", or "this past saturday"
-        14. Return ONLY valid JSON, no additional text or explanation
+        14. CRITICAL: Detect if user is describing MULTIPLE workouts (e.g., "I did push day and cardio", "upperbody + run", "chest workout and stretching")
+        15. For multiple workouts, create separate workout objects in the "workouts" array
+        16. Return ONLY valid JSON with "workouts" array (even if just one workout), no additional text or explanation
 
         """
 
@@ -69,13 +91,15 @@ struct PromptTemplates {
             2. Template names are case-insensitive and can be referenced partially (e.g., "push" matches "Push Day A")
             3. If multiple templates match, choose the closest match based on the user's phrasing
             4. If the template name doesn't match any available templates, ignore the reference and parse as a normal workout
-            5. Apply any modifications the user mentions:
+            5. CRITICAL: If the user mentions MULTIPLE templates (e.g., "I did push day and cardio", "upperbody + leg day"), match each template separately and create multiple workout objects
+            6. Apply any modifications the user mentions:
                - "add 5 pounds to bench press" → Increase bench press weight by 5
                - "but do 12 reps instead" → Change reps to 12 for specified exercise
                - "skip overhead press" → Remove overhead press from output
-            6. If the user wants to add exercises, append them to the template exercises
-            7. If the user wants to remove exercises, exclude them from the output
-            8. Keep all unmodified exercises exactly as they are in the template
+            7. If the user wants to add exercises, append them to the template exercises
+            8. If the user wants to remove exercises, exclude them from the output
+            9. Keep all unmodified exercises exactly as they are in the template
+            10. When matching multiple templates, create a separate workout object for each template in the "workouts" array
 
             """
         }
