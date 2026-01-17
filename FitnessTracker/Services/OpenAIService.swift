@@ -318,10 +318,14 @@ class OpenAIService {
                     print("🔍 DIAGNOSTIC: AI returned date string: '\(dateString)'")
 
                     if let parsedDate = isoFormatter.date(from: dateString) {
-                        // Convert to local timezone at 8:00 AM
-                        let calendar = Calendar.current
-                        let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
+                        // Create UTC calendar to extract date components from UTC date
+                        // This prevents timezone conversion bugs (e.g., Jan 14 00:00 UTC becoming Jan 13 in PST)
+                        var utcCalendar = Calendar.current
+                        utcCalendar.timeZone = TimeZone(identifier: "UTC")!
 
+                        let components = utcCalendar.dateComponents([.year, .month, .day], from: parsedDate)
+
+                        // Create date at 8:00 AM in user's local timezone
                         var newComponents = DateComponents()
                         newComponents.year = components.year
                         newComponents.month = components.month
@@ -331,10 +335,17 @@ class OpenAIService {
                         newComponents.second = 0
                         newComponents.timeZone = TimeZone.current
 
-                        if let localDate = calendar.date(from: newComponents) {
+                        let localCalendar = Calendar.current
+                        if let localDate = localCalendar.date(from: newComponents) {
                             workoutDate = localDate
+
+                            let formatter = DateFormatter()
+                            formatter.dateStyle = .medium
+                            formatter.timeStyle = .short
+                            print("🔍 DIAGNOSTIC: Parsed to local date: \(formatter.string(from: localDate))")
                         } else {
                             workoutDate = parsedDate
+                            print("⚠️ Could not convert to local timezone, using UTC date")
                         }
                     } else {
                         print("⚠️ Could not parse date '\(dateString)', using current time")
@@ -417,10 +428,14 @@ class OpenAIService {
                 var mealDate = Date()
                 if let dateString = meal.date {
                     if let parsedDate = isoFormatter.date(from: dateString) {
-                        // Convert to local timezone at 8:00 AM (or appropriate meal time)
-                        let calendar = Calendar.current
-                        let components = calendar.dateComponents([.year, .month, .day], from: parsedDate)
+                        // Create UTC calendar to extract date components from UTC date
+                        // This prevents timezone conversion bugs (e.g., Jan 14 00:00 UTC becoming Jan 13 in PST)
+                        var utcCalendar = Calendar.current
+                        utcCalendar.timeZone = TimeZone(identifier: "UTC")!
 
+                        let components = utcCalendar.dateComponents([.year, .month, .day], from: parsedDate)
+
+                        // Create date at 8:00 AM in user's local timezone (or appropriate meal time)
                         var newComponents = DateComponents()
                         newComponents.year = components.year
                         newComponents.month = components.month
@@ -430,7 +445,8 @@ class OpenAIService {
                         newComponents.second = 0
                         newComponents.timeZone = TimeZone.current
 
-                        if let localDate = calendar.date(from: newComponents) {
+                        let localCalendar = Calendar.current
+                        if let localDate = localCalendar.date(from: newComponents) {
                             mealDate = localDate
                         } else {
                             mealDate = parsedDate
